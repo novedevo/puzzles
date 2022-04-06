@@ -13,7 +13,8 @@
 
 #include "puzzles.h"
 
-struct findloopstate {
+struct findloopstate
+{
     int parent, child, sibling, component_root;
     bool visited;
     int index, minindex, maxindex;
@@ -104,7 +105,8 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
      * then we'd have to do that *and* build the tree, so it's less
      * effort to do it all at once.)
      */
-    for (v = 0; v <= nvertices; v++) {
+    for (v = 0; v <= nvertices; v++)
+    {
         pv[v].parent = root;
         pv[v].child = -2;
         pv[v].sibling = -1;
@@ -113,8 +115,10 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
     pv[root].child = -1;
     nedges = 0;
     debug(("------------- new find_loops, nvertices=%d\n", nvertices));
-    for (v = 0; v < nvertices; v++) {
-        if (pv[v].parent == root) {
+    for (v = 0; v < nvertices; v++)
+    {
+        if (pv[v].parent == root)
+        {
             /*
              * Found a new connected component. Enumerate and treeify
              * it.
@@ -125,8 +129,10 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
             debug(("%d is new child of root\n", v));
 
             u = v;
-            while (1) {
-                if (!pv[u].visited) {
+            while (1)
+            {
+                if (!pv[u].visited)
+                {
                     pv[u].visited = true;
 
                     /*
@@ -137,9 +143,11 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
                      */
                     debug(("  component pass: processing %d\n", u));
                     for (w = neighbour(u, ctx); w >= 0;
-                         w = neighbour(-1, ctx)) {
+                         w = neighbour(-1, ctx))
+                    {
                         debug(("    edge %d-%d\n", u, w));
-                        if (pv[w].child == -2) {
+                        if (pv[w].child == -2)
+                        {
                             debug(("      -> new child\n"));
                             pv[w].child = -1;
                             pv[w].sibling = pv[u].child;
@@ -159,20 +167,26 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
                     /*
                      * Now descend in depth-first search.
                      */
-                    if (pv[u].child >= 0) {
+                    if (pv[u].child >= 0)
+                    {
                         u = pv[u].child;
                         debug(("    descending to %d\n", u));
                         continue;
                     }
                 }
 
-                if (u == v) {
+                if (u == v)
+                {
                     debug(("      back at %d, done this component\n", u));
                     break;
-                } else if (pv[u].sibling >= 0) {
+                }
+                else if (pv[u].sibling >= 0)
+                {
                     u = pv[u].sibling;
                     debug(("    sideways to %d\n", u));
-                } else {
+                }
+                else
+                {
                     u = pv[u].parent;
                     debug(("    ascending to %d\n", u));
                 }
@@ -202,8 +216,10 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
         pv[v].visited = false;
     pv[root].visited = true;
     u = pv[root].child;
-    while (1) {
-        if (!pv[u].visited) {
+    while (1)
+    {
+        if (!pv[u].visited)
+        {
             pv[u].visited = true;
 
             /*
@@ -216,14 +232,16 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
             /*
              * Now descend in depth-first search.
              */
-            if (pv[u].child >= 0) {
+            if (pv[u].child >= 0)
+            {
                 u = pv[u].child;
                 debug(("    descending to %d\n", u));
                 continue;
             }
         }
 
-        if (u == root) {
+        if (u == root)
+        {
             debug(("      back at %d, done indexing\n", u));
             break;
         }
@@ -233,13 +251,16 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
          * had no children to descend to in the first place), fill in
          * its maxindex field.
          */
-        pv[u].maxindex = index-1;
+        pv[u].maxindex = index - 1;
         debug(("  vertex %d <- maxindex %d\n", u, pv[u].maxindex));
 
-        if (pv[u].sibling >= 0) {
+        if (pv[u].sibling >= 0)
+        {
             u = pv[u].sibling;
             debug(("    sideways to %d\n", u));
-        } else {
+        }
+        else
+        {
             u = pv[u].parent;
             debug(("    ascending to %d\n", u));
         }
@@ -272,8 +293,10 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
         pv[v].visited = false;
     u = pv[root].child;
     pv[root].visited = true;
-    while (1) {
-        if (!pv[u].visited) {
+    while (1)
+    {
+        if (!pv[u].visited)
+        {
             pv[u].visited = true;
 
             /*
@@ -282,9 +305,11 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
              */
             debug(("  processing vertex %d\n", u));
             pv[u].minreachable = pv[u].maxreachable = pv[u].minindex;
-            for (w = neighbour(u, ctx); w >= 0; w = neighbour(-1, ctx)) {
+            for (w = neighbour(u, ctx); w >= 0; w = neighbour(-1, ctx))
+            {
                 debug(("    edge %d-%d\n", u, w));
-                if (w != pv[u].parent) {
+                if (w != pv[u].parent)
+                {
                     int i = pv[w].index;
                     if (pv[u].minreachable > i)
                         pv[u].minreachable = i;
@@ -298,14 +323,16 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
             /*
              * Now descend in depth-first search.
              */
-            if (pv[u].child >= 0) {
+            if (pv[u].child >= 0)
+            {
                 u = pv[u].child;
                 debug(("    descending to %d\n", u));
                 continue;
             }
         }
 
-        if (u == root) {
+        if (u == root)
+        {
             debug(("      back at %d, done min-maxing\n", u));
             break;
         }
@@ -314,7 +341,8 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
          * As we re-ascend to this vertex, go back through its
          * immediate children and do a post-update of its min/max.
          */
-        for (v = pv[u].child; v >= 0; v = pv[v].sibling) {
+        for (v = pv[u].child; v >= 0; v = pv[v].sibling)
+        {
             if (pv[u].minreachable > pv[v].minreachable)
                 pv[u].minreachable = pv[v].minreachable;
             if (pv[u].maxreachable < pv[v].maxreachable)
@@ -328,22 +356,29 @@ bool findloop_run(struct findloopstate *pv, int nvertices,
         /*
          * And now we know whether each to our own parent is a bridge.
          */
-        if ((v = pv[u].parent) != root) {
+        if ((v = pv[u].parent) != root)
+        {
             if (pv[u].minreachable >= pv[u].minindex &&
-                pv[u].maxreachable <= pv[u].maxindex) {
+                pv[u].maxreachable <= pv[u].maxindex)
+            {
                 /* Yes, it's a bridge. */
                 pv[u].bridge = v;
                 nbridges++;
                 debug(("  %d-%d is a bridge\n", v, u));
-            } else {
+            }
+            else
+            {
                 debug(("  %d-%d is not a bridge\n", v, u));
             }
         }
 
-        if (pv[u].sibling >= 0) {
+        if (pv[u].sibling >= 0)
+        {
             u = pv[u].sibling;
             debug(("    sideways to %d\n", u));
-        } else {
+        }
+        else
+        {
             u = pv[u].parent;
             debug(("    ascending to %d\n", u));
         }
