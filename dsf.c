@@ -9,58 +9,6 @@
 
 #include "puzzles.h"
 
-/*void print_dsf(int *dsf, int size)
-{
-    int *printed_elements = snewn(size, int);
-    int *equal_elements = snewn(size, int);
-    int *inverse_elements = snewn(size, int);
-    int printed_count = 0, equal_count, inverse_count;
-    int i, n;
-    bool inverse;
-
-    memset(printed_elements, -1, sizeof(int) * size);
-
-    while (1) {
-        equal_count = 0;
-        inverse_count = 0;
-        for (i = 0; i < size; ++i) {
-            if (!memchr(printed_elements, i, sizeof(int) * size))
-                break;
-        }
-        if (i == size)
-            goto done;
-
-        i = dsf_canonify(dsf, i);
-
-        for (n = 0; n < size; ++n) {
-            if (edsf_canonify(dsf, n, &inverse) == i) {
-               if (inverse)
-                   inverse_elements[inverse_count++] = n;
-               else
-                   equal_elements[equal_count++] = n;
-            }
-        }
-
-        for (n = 0; n < equal_count; ++n) {
-            fprintf(stderr, "%d ", equal_elements[n]);
-            printed_elements[printed_count++] = equal_elements[n];
-        }
-        if (inverse_count) {
-            fprintf(stderr, "!= ");
-            for (n = 0; n < inverse_count; ++n) {
-                fprintf(stderr, "%d ", inverse_elements[n]);
-                printed_elements[printed_count++] = inverse_elements[n];
-            }
-        }
-        fprintf(stderr, "\n");
-    }
-done:
-
-    sfree(printed_elements);
-    sfree(equal_elements);
-    sfree(inverse_elements);
-}*/
-
 void dsf_init(int *dsf, int size)
 {
     int i;
@@ -90,16 +38,6 @@ int *snew_dsf(int size)
 int dsf_canonify(int *dsf, int index)
 {
     return edsf_canonify(dsf, index, NULL);
-}
-
-void dsf_merge(int *dsf, int v1, int v2)
-{
-    edsf_merge(dsf, v1, v2, false);
-}
-
-int dsf_size(int *dsf, int index)
-{
-    return dsf[dsf_canonify(dsf, index)] >> 2;
 }
 
 int edsf_canonify(int *dsf, int index, bool *inverse_return)
@@ -146,8 +84,9 @@ int edsf_canonify(int *dsf, int index, bool *inverse_return)
     return index;
 }
 
-void edsf_merge(int *dsf, int v1, int v2, bool inverse)
+void dsf_merge(int *dsf, int v1, int v2)
 {
+    bool inverse = false;
     bool i1, i2;
 
     /*    fprintf(stderr, "dsf = %p\n", dsf); */
