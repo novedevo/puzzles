@@ -20,8 +20,7 @@ typedef struct game game;
  * Platform routines
  */
 
-/* We can't use #ifdef DEBUG, because Cygwin defines it by default. */
-#ifdef DEBUGGING
+#ifdef DEBUG
 #define debug(x) (debug_printf x)
 void debug_printf(const char *fmt, ...);
 #else
@@ -29,7 +28,7 @@ void debug_printf(const char *fmt, ...);
 #endif
 
 /*
- * malloc.c
+ * headers for malloc.c
  */
 void *smalloc(size_t size);
 void *srealloc(void *p, size_t size);
@@ -43,15 +42,8 @@ char *dupstr(const char *s);
     ((type *)srealloc((array), (number) * sizeof(type)))
 
 /*
- * dsf.c
- */
-
-/*
  * Data structure containing the function calls and data specific
- * to a particular game. This is enclosed in a data structure so
- * that a particular platform can choose, if it wishes, to compile
- * all the games into a single combined executable rather than
- * having lots of little ones.
+ * to a particular game.
  */
 struct game
 {
