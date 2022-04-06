@@ -403,11 +403,8 @@ bool findloop_is_bridge(
  */
 struct game
 {
-    const char *name;
-    const char *winhelp_topic, *htmlhelp_topic;
     game_params *(*default_params)(void);
     bool (*fetch_preset)(int i, char **name, game_params **params);
-    struct preset_menu *(*preset_menu)(void);
     void (*decode_params)(game_params *, char const *string);
     char *(*encode_params)(const game_params *, bool full);
     void (*free_params)(game_params *params);
@@ -419,8 +416,6 @@ struct game
     char *(*new_desc)(const game_params *params, random_state *rs,
                       char **aux, bool interactive);
     const char *(*validate_desc)(const game_params *params, const char *desc);
-    game_state *(*new_game)(midend *me, const game_params *params,
-                            const char *desc);
     game_state *(*dup_game)(const game_state *state);
     void (*free_game)(game_state *state);
     bool can_solve;
@@ -429,44 +424,8 @@ struct game
     bool can_format_as_text_ever;
     bool (*can_format_as_text_now)(const game_params *params);
     char *(*text_format)(const game_state *state);
-    game_ui *(*new_ui)(const game_state *state);
-    void (*free_ui)(game_ui *ui);
-    char *(*encode_ui)(const game_ui *ui);
-    void (*decode_ui)(game_ui *ui, const char *encoding);
-    key_label *(*request_keys)(const game_params *params, int *nkeys);
-    void (*changed_state)(game_ui *ui, const game_state *oldstate,
-                          const game_state *newstate);
-    char *(*interpret_move)(const game_state *state, game_ui *ui,
-                            const game_drawstate *ds, int x, int y, int button);
     game_state *(*execute_move)(const game_state *state, const char *move);
-    int preferred_tilesize;
-    void (*compute_size)(const game_params *params, int tilesize,
-                         int *x, int *y);
-    void (*set_size)(drawing *dr, game_drawstate *ds,
-                     const game_params *params, int tilesize);
-    float *(*colours)(frontend *fe, int *ncolours);
-    game_drawstate *(*new_drawstate)(drawing *dr, const game_state *state);
-    void (*free_drawstate)(drawing *dr, game_drawstate *ds);
-    void (*redraw)(drawing *dr, game_drawstate *ds, const game_state *oldstate,
-                   const game_state *newstate, int dir, const game_ui *ui,
-                   float anim_time, float flash_time);
-    float (*anim_length)(const game_state *oldstate,
-                         const game_state *newstate, int dir, game_ui *ui);
-    float (*flash_length)(const game_state *oldstate,
-                          const game_state *newstate, int dir, game_ui *ui);
-    void (*get_cursor_location)(const game_ui *ui,
-                                const game_drawstate *ds,
-                                const game_state *state,
-                                const game_params *params,
-                                int *x, int *y, int *w, int *h);
     int (*status)(const game_state *state);
-    bool can_print, can_print_in_colour;
-    void (*print_size)(const game_params *params, float *x, float *y);
-    void (*print)(drawing *dr, const game_state *state, int tilesize);
-    bool wants_statusbar;
-    bool is_timed;
-    bool (*timing_state)(const game_state *state, game_ui *ui);
-    int flags;
 };
 
 /*
