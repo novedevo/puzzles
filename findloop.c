@@ -12,6 +12,7 @@
  */
 
 #include "puzzles.h"
+#include "findloop.h"
 
 struct findloopstate
 {
@@ -56,33 +57,6 @@ bool findloop_is_loop_edge(struct findloopstate *pv, int u, int v)
      * versa.
      */
     return !(pv[u].bridge == v || pv[v].bridge == u);
-}
-
-static bool findloop_is_bridge_oneway(
-    struct findloopstate *pv, int u, int v, int *u_vertices, int *v_vertices)
-{
-    int r, total, below;
-
-    if (pv[u].bridge != v)
-        return false;
-
-    r = pv[u].component_root;
-    total = pv[r].maxindex - pv[r].minindex + 1;
-    below = pv[u].maxindex - pv[u].minindex + 1;
-
-    if (u_vertices)
-        *u_vertices = below;
-    if (v_vertices)
-        *v_vertices = total - below;
-
-    return true;
-}
-
-bool findloop_is_bridge(
-    struct findloopstate *pv, int u, int v, int *u_vertices, int *v_vertices)
-{
-    return (findloop_is_bridge_oneway(pv, u, v, u_vertices, v_vertices) ||
-            findloop_is_bridge_oneway(pv, v, u, v_vertices, u_vertices));
 }
 
 bool findloop_run(struct findloopstate *pv, int nvertices,

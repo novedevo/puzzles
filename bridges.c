@@ -75,6 +75,9 @@
 #include <math.h>
 
 #include "puzzles.h"
+#include "findloop.h"
+#include "random.h"
+#include "dsf.h"
 
 /* --- structures for params, state, etc. --- */
 
@@ -769,69 +772,6 @@ static char *encode_params(const game_params *params, bool full)
                 params->maxb, params->allowloops ? "" : "L");
     }
     return dupstr(buf);
-}
-
-static config_item *game_configure(const game_params *params)
-{
-    config_item *ret;
-    char buf[80];
-
-    ret = snewn(8, config_item);
-
-    ret[0].name = "Width";
-    ret[0].type = C_STRING;
-    sprintf(buf, "%d", params->w);
-    ret[0].u.string.sval = dupstr(buf);
-
-    ret[1].name = "Height";
-    ret[1].type = C_STRING;
-    sprintf(buf, "%d", params->h);
-    ret[1].u.string.sval = dupstr(buf);
-
-    ret[2].name = "Difficulty";
-    ret[2].type = C_CHOICES;
-    ret[2].u.choices.choicenames = ":Easy:Medium:Hard";
-    ret[2].u.choices.selected = params->difficulty;
-
-    ret[3].name = "Allow loops";
-    ret[3].type = C_BOOLEAN;
-    ret[3].u.boolean.bval = params->allowloops;
-
-    ret[4].name = "Max. bridges per direction";
-    ret[4].type = C_CHOICES;
-    ret[4].u.choices.choicenames = ":1:2:3:4"; /* keep up-to-date with
-                                                * MAX_BRIDGES */
-    ret[4].u.choices.selected = params->maxb - 1;
-
-    ret[5].name = "%age of island squares";
-    ret[5].type = C_CHOICES;
-    ret[5].u.choices.choicenames = ":5%:10%:15%:20%:25%:30%";
-    ret[5].u.choices.selected = (params->islands / 5) - 1;
-
-    ret[6].name = "Expansion factor (%age)";
-    ret[6].type = C_CHOICES;
-    ret[6].u.choices.choicenames = ":0%:10%:20%:30%:40%:50%:60%:70%:80%:90%:100%";
-    ret[6].u.choices.selected = params->expansion / 10;
-
-    ret[7].name = NULL;
-    ret[7].type = C_END;
-
-    return ret;
-}
-
-static game_params *custom_params(const config_item *cfg)
-{
-    game_params *ret = snew(game_params);
-
-    ret->w = atoi(cfg[0].u.string.sval);
-    ret->h = atoi(cfg[1].u.string.sval);
-    ret->difficulty = cfg[2].u.choices.selected;
-    ret->allowloops = cfg[3].u.boolean.bval;
-    ret->maxb = cfg[4].u.choices.selected + 1;
-    ret->islands = (cfg[5].u.choices.selected + 1) * 5;
-    ret->expansion = cfg[6].u.choices.selected * 10;
-
-    return ret;
 }
 
 static const char *validate_params(const game_params *params, bool full)
@@ -2472,9 +2412,6 @@ const struct game thegame = {
     encode_params,
     free_params,
     dup_params,
-    true,
-    game_configure,
-    custom_params,
     validate_params,
     new_game_desc,
     validate_desc,

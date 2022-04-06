@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 #include "puzzles.h"
+#include "random.h"
 
 /* ----------------------------------------------------------------------
  * Core SHA algorithm: processes 16-word blocks into a message digest.
