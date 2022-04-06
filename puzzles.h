@@ -10,22 +10,6 @@
 #include <limits.h> /* for UINT_MAX */
 #include <stdbool.h>
 
-#define PI 3.141592653589793238462643383279502884197169399
-#define ROOT2 1.414213562373095048801688724209698078569672
-
-#define lenof(array) (sizeof(array) / sizeof(*(array)))
-
-#define STR_INT(x) #x
-#define STR(x) STR_INT(x)
-
-/* NB not perfect because they evaluate arguments multiple times. */
-#ifndef max
-#define max(x, y) ((x) > (y) ? (x) : (y))
-#endif /* max */
-#ifndef min
-#define min(x, y) ((x) < (y) ? (x) : (y))
-#endif /* min */
-
 enum
 {
     LEFT_BUTTON = 0x0200,
@@ -74,17 +58,8 @@ enum
 /*
  * Flags in the back end's `flags' word.
  */
-/* Bit flags indicating mouse button priorities */
-#define BUTTON_BEATS(x, y) (1 << (((x)-LEFT_BUTTON) * 3 + (y)-LEFT_BUTTON))
-/* Flag indicating that Solve operations should be animated */
-#define SOLVE_ANIMATES (1 << 9)
-/* Pocket PC: Game requires right mouse button emulation */
 #define REQUIRE_RBUTTON (1 << 10)
 /* Pocket PC: Game requires numeric input */
-#define REQUIRE_NUMPAD (1 << 11)
-/* end of `flags' word definitions */
-
-#define IGNOREARG(x) ((x) = (x))
 
 typedef struct frontend frontend;
 typedef struct config_item config_item;
@@ -248,12 +223,6 @@ void debug_printf(const char *fmt, ...);
 #define debug(x)
 #endif
 
-void fatal(const char *fmt, ...);
-void frontend_default_colour(frontend *fe, float *output);
-void deactivate_timer(frontend *fe);
-void activate_timer(frontend *fe);
-void get_random_seed(void **randseed, int *randseedsize);
-
 /*
  * drawing.c
  */
@@ -306,67 +275,6 @@ void print_line_width(drawing *dr, int width);
 void print_line_dotted(drawing *dr, bool dotted);
 
 /*
- * midend.c
- */
-midend *midend_new(frontend *fe, const game *ourgame,
-                   const drawing_api *drapi, void *drhandle);
-void midend_free(midend *me);
-const game *midend_which_game(midend *me);
-void midend_set_params(midend *me, game_params *params);
-game_params *midend_get_params(midend *me);
-void midend_size(midend *me, int *x, int *y, bool user_size);
-void midend_reset_tilesize(midend *me);
-void midend_new_game(midend *me);
-void midend_restart_game(midend *me);
-void midend_stop_anim(midend *me);
-bool midend_process_key(midend *me, int x, int y, int button);
-key_label *midend_request_keys(midend *me, int *nkeys);
-void midend_force_redraw(midend *me);
-void midend_redraw(midend *me);
-float *midend_colours(midend *me, int *ncolours);
-void midend_freeze_timer(midend *me, float tprop);
-void midend_timer(midend *me, float tplus);
-struct preset_menu *midend_get_presets(midend *me, int *id_limit);
-int midend_which_preset(midend *me);
-bool midend_wants_statusbar(midend *me);
-enum
-{
-    CFG_SETTINGS,
-    CFG_SEED,
-    CFG_DESC,
-    CFG_FRONTEND_SPECIFIC
-};
-config_item *midend_get_config(midend *me, int which, char **wintitle);
-const char *midend_set_config(midend *me, int which, config_item *cfg);
-const char *midend_game_id(midend *me, const char *id);
-char *midend_get_game_id(midend *me);
-char *midend_get_random_seed(midend *me);
-bool midend_can_format_as_text_now(midend *me);
-char *midend_text_format(midend *me);
-const char *midend_solve(midend *me);
-int midend_status(midend *me);
-bool midend_can_undo(midend *me);
-bool midend_can_redo(midend *me);
-void midend_supersede_game_desc(midend *me, const char *desc,
-                                const char *privdesc);
-char *midend_rewrite_statusbar(midend *me, const char *text);
-void midend_serialise(midend *me,
-                      void (*write)(void *ctx, const void *buf, int len),
-                      void *wctx);
-const char *midend_deserialise(midend *me,
-                               bool (*read)(void *ctx, void *buf, int len),
-                               void *rctx);
-const char *identify_game(char **name,
-                          bool (*read)(void *ctx, void *buf, int len),
-                          void *rctx);
-void midend_request_id_changes(midend *me, void (*notify)(void *), void *ctx);
-bool midend_get_cursor_location(midend *me, int *x, int *y, int *w, int *h);
-
-/* Printing functions supplied by the mid-end */
-const char *midend_print_puzzle(midend *me, document *doc, bool with_soln);
-int midend_tilesize(midend *me);
-
-/*
  * malloc.c
  */
 void *smalloc(size_t size);
@@ -383,127 +291,30 @@ char *dupstr(const char *s);
 /*
  * misc.c
  */
-void free_cfg(config_item *cfg);
-void free_keys(key_label *keys, int nkeys);
-void obfuscate_bitmap(unsigned char *bmp, int bits, bool decode);
-char *fgetline(FILE *fp);
-
-/* allocates output each time. len is always in bytes of binary data.
- * May assert (or just go wrong) if lengths are unchecked. */
-char *bin2hex(const unsigned char *in, int inlen);
-unsigned char *hex2bin(const char *in, int outlen);
-
-/* Sets (and possibly dims) background from frontend default colour,
- * and auto-generates highlight and lowlight colours too. */
-void game_mkhighlight(frontend *fe, float *ret,
-                      int background, int highlight, int lowlight);
-/* As above, but starts from a provided background colour rather
- * than the frontend default. */
-void game_mkhighlight_specific(frontend *fe, float *ret,
-                               int background, int highlight, int lowlight);
-
-/* Randomly shuffles an array of items. */
-void shuffle(void *array, int nelts, int eltsize, random_state *rs);
 
 /* Draw a rectangle outline, using the drawing API's draw_line. */
 void draw_rect_outline(drawing *dr, int x, int y, int w, int h,
                        int colour);
 
-/* Draw a set of rectangle corners (e.g. for a cursor display). */
-void draw_rect_corners(drawing *dr, int cx, int cy, int r, int col);
-
 void move_cursor(int button, int *x, int *y, int maxw, int maxh, bool wrap);
-
-/* Used in netslide.c and sixteen.c for cursor movement around edge. */
-int c2pos(int w, int h, int cx, int cy);
-int c2diff(int w, int h, int cx, int cy, int button);
-void pos2c(int w, int h, int pos, int *cx, int *cy);
-
-/* Draws text with an 'outline' formed by offsetting the text
- * by one pixel; useful for highlighting. Outline is omitted if -1. */
-void draw_text_outline(drawing *dr, int x, int y, int fonttype,
-                       int fontsize, int align,
-                       int text_colour, int outline_colour, const char *text);
-
-/* Copies text left-justified with spaces. Length of string must be
- * less than buffer size. */
-void copy_left_justified(char *buf, size_t sz, const char *str);
-
-/* Returns a generic label based on the value of `button.' To be used
-   whenever a `label' field returned by the request_keys() game
-   function is NULL. Dynamically allocated, to be freed by caller. */
-char *button2label(int button);
 
 /*
  * dsf.c
  */
 int *snew_dsf(int size);
 
-void print_dsf(int *dsf, int size);
-
 /* Return the canonical element of the equivalence class containing element
  * val.  If 'inverse' is non-NULL, this function will put into it a flag
  * indicating whether the canonical element is inverse to val. */
-int edsf_canonify(int *dsf, int val, bool *inverse);
 int dsf_canonify(int *dsf, int val);
-int dsf_size(int *dsf, int val);
 
 /* Allow the caller to specify that two elements should be in the same
  * equivalence class.  If 'inverse' is true, the elements are actually opposite
  * to one another in some sense.  This function will fail an assertion if the
  * caller gives it self-contradictory data, ie if two elements are claimed to
  * be both opposite and non-opposite. */
-void edsf_merge(int *dsf, int v1, int v2, bool inverse);
 void dsf_merge(int *dsf, int v1, int v2);
 void dsf_init(int *dsf, int len);
-
-/*
- * tdq.c
- */
-
-/*
- * Data structure implementing a 'to-do queue', a simple
- * de-duplicating to-do list mechanism.
- *
- * Specification: a tdq is a queue which can hold integers from 0 to
- * n-1, where n was some constant specified at tdq creation time. No
- * integer may appear in the queue's current contents more than once;
- * an attempt to add an already-present integer again will do nothing,
- * so that that integer is removed from the queue at the position
- * where it was _first_ inserted. The add and remove operations take
- * constant time.
- *
- * The idea is that you might use this in applications like solvers:
- * keep a tdq listing the indices of grid squares that you currently
- * need to process in some way. Whenever you modify a square in a way
- * that will require you to re-scan its neighbours, add them to the
- * list with tdq_add; meanwhile you're constantly taking elements off
- * the list when you need another square to process. In solvers where
- * deductions are mostly localised, this should prevent repeated
- * O(N^2) loops over the whole grid looking for something to do. (But
- * if only _most_ of the deductions are localised, then you should
- * respond to an empty to-do list by re-adding everything using
- * tdq_fill, so _then_ you rescan the whole grid looking for newly
- * enabled non-local deductions. Only if you've done that and emptied
- * the list again finding nothing new to do are you actually done.)
- */
-typedef struct tdq tdq;
-tdq *tdq_new(int n);
-void tdq_free(tdq *tdq);
-void tdq_add(tdq *tdq, int k);
-int tdq_remove(tdq *tdq); /* returns -1 if nothing available */
-void tdq_fill(tdq *tdq);  /* add everything to the tdq at once */
-
-/*
- * laydomino.c
- */
-int *domino_layout(int w, int h, random_state *rs);
-void domino_layout_prealloc(int w, int h, random_state *rs,
-                            int *grid, int *grid2, int *list);
-/*
- * version.c
- */
-extern char ver[];
 
 /*
  * random.c
@@ -535,47 +346,6 @@ void SHA_Init(SHA_State *s);
 void SHA_Bytes(SHA_State *s, const void *p, int len);
 void SHA_Final(SHA_State *s, unsigned char *output);
 void SHA_Simple(const void *p, int len, unsigned char *output);
-
-/*
- * printing.c
- */
-document *document_new(int pw, int ph, float userscale);
-void document_free(document *doc);
-void document_add_puzzle(document *doc, const game *game, game_params *par,
-                         game_state *st, game_state *st2);
-int document_npages(const document *doc);
-void document_begin(const document *doc, drawing *dr);
-void document_end(const document *doc, drawing *dr);
-void document_print_page(const document *doc, drawing *dr, int page_nr);
-void document_print(const document *doc, drawing *dr);
-
-/*
- * ps.c
- */
-psdata *ps_init(FILE *outfile, bool colour);
-void ps_free(psdata *ps);
-drawing *ps_drawing_api(psdata *ps);
-
-/*
- * combi.c: provides a structure and functions for iterating over
- * combinations (i.e. choosing r things out of n).
- */
-typedef struct _combi_ctx
-{
-    int r, n, nleft, total;
-    int *a;
-} combi_ctx;
-
-combi_ctx *new_combi(int r, int n);
-void reset_combi(combi_ctx *combi);
-combi_ctx *next_combi(combi_ctx *combi); /* returns NULL for end */
-void free_combi(combi_ctx *combi);
-
-/*
- * divvy.c
- */
-/* divides w*h rectangle into pieces of size k. Returns w*h dsf. */
-int *divvy_rectangle(int w, int h, int k, random_state *rs);
 
 /*
  * findloop.c
@@ -623,20 +393,6 @@ bool findloop_is_loop_edge(struct findloopstate *state, int u, int v);
  */
 bool findloop_is_bridge(
     struct findloopstate *pv, int u, int v, int *u_vertices, int *v_vertices);
-
-/*
- * Helper function to sort an array. Differs from standard qsort in
- * that it takes a context parameter that is passed to the compare
- * function.
- *
- * I wrap it in a macro so that you only need to give the element
- * count of the array. The element size is determined by sizeof.
- */
-typedef int (*arraysort_cmpfn_t)(const void *av, const void *bv, void *ctx);
-void arraysort_fn(void *array, size_t nmemb, size_t size,
-                  arraysort_cmpfn_t cmp, void *ctx);
-#define arraysort(array, nmemb, cmp, ctx) \
-    arraysort_fn(array, nmemb, sizeof(*(array)), cmp, ctx)
 
 /*
  * Data structure containing the function calls and data specific
@@ -712,60 +468,6 @@ struct game
     bool (*timing_state)(const game_state *state, game_ui *ui);
     int flags;
 };
-
-/*
- * Data structure containing the drawing API implemented by the
- * front end and also by cross-platform printing modules such as
- * PostScript.
- */
-struct drawing_api
-{
-    void (*draw_text)(void *handle, int x, int y, int fonttype, int fontsize,
-                      int align, int colour, const char *text);
-    void (*draw_rect)(void *handle, int x, int y, int w, int h, int colour);
-    void (*draw_line)(void *handle, int x1, int y1, int x2, int y2,
-                      int colour);
-    void (*draw_polygon)(void *handle, const int *coords, int npoints,
-                         int fillcolour, int outlinecolour);
-    void (*draw_circle)(void *handle, int cx, int cy, int radius,
-                        int fillcolour, int outlinecolour);
-    void (*draw_update)(void *handle, int x, int y, int w, int h);
-    void (*clip)(void *handle, int x, int y, int w, int h);
-    void (*unclip)(void *handle);
-    void (*start_draw)(void *handle);
-    void (*end_draw)(void *handle);
-    void (*status_bar)(void *handle, const char *text);
-    blitter *(*blitter_new)(void *handle, int w, int h);
-    void (*blitter_free)(void *handle, blitter *bl);
-    void (*blitter_save)(void *handle, blitter *bl, int x, int y);
-    void (*blitter_load)(void *handle, blitter *bl, int x, int y);
-    void (*begin_doc)(void *handle, int pages);
-    void (*begin_page)(void *handle, int number);
-    void (*begin_puzzle)(void *handle, float xm, float xc,
-                         float ym, float yc, int pw, int ph, float wmm);
-    void (*end_puzzle)(void *handle);
-    void (*end_page)(void *handle, int number);
-    void (*end_doc)(void *handle);
-    void (*line_width)(void *handle, float width);
-    void (*line_dotted)(void *handle, bool dotted);
-    char *(*text_fallback)(void *handle, const char *const *strings,
-                           int nstrings);
-    void (*draw_thick_line)(void *handle, float thickness,
-                            float x1, float y1, float x2, float y2,
-                            int colour);
-};
-
-/*
- * For one-game-at-a-time platforms, there's a single structure
- * like the above, under a fixed name. For all-at-once platforms,
- * there's a list of all available puzzles in array form.
- */
-#ifdef COMBINED
-extern const game *gamelist[];
-extern const int gamecount;
-#else
-extern const game thegame;
-#endif
 
 /*
  * Special string value to return from interpret_move in the case
