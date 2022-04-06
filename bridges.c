@@ -105,15 +105,12 @@ struct game_params
 /* flags used by the solver etc. */
 #define G_SWEEP 0x1000
 
-#define G_FLAGSH (G_LINEH | G_MARKH | G_NOLINEH)
-#define G_FLAGSV (G_LINEV | G_MARKV | G_NOLINEV)
-
 typedef unsigned int grid_type; /* change me later if we invent > 16 bits of flags. */
 
 struct solver_state
 {
-    int *dsf, *comptspaces;
-    int *tmpdsf, *tmpcompspaces;
+    int *dsf;
+    int *tmpdsf;
     int refcount;
 };
 
@@ -162,13 +159,6 @@ struct game_state
 #define INDEX(s, g, x, y) ((s)->g[(y) * ((s)->w) + (x)])
 #define IDX(s, g, i) ((s)->g[(i)])
 #define GRID(s, x, y) INDEX(s, grid, x, y)
-#define POSSIBLES(s, dx, x, y) ((dx) ? (INDEX(s, possh, x, y)) : (INDEX(s, possv, x, y)))
-#define MAXIMUM(s, dx, x, y) ((dx) ? (INDEX(s, maxh, x, y)) : (INDEX(s, maxv, x, y)))
-
-#define GRIDCOUNT(s, x, y, f) ((GRID(s, x, y) & (f)) ? (INDEX(s, lines, x, y)) : 0)
-
-#define WITHIN2(x, min, max) ((x) >= (min) && (x) < (max))
-#define WITHIN(x, min, max) ((min) > (max) ? WITHIN2(x, max, min) : WITHIN2(x, min, max))
 
 /* --- island struct and tree support functions --- */
 
@@ -190,11 +180,6 @@ static void fixup_islands_for_realloc(game_state *state)
         is->state = state;
         INDEX(state, gridi, is->x, is->y) = is;
     }
-}
-
-static bool game_can_format_as_text_now(const game_params *params)
-{
-    return true;
 }
 
 static char *game_text_format(const game_state *state)
@@ -2497,8 +2482,6 @@ const struct game thegame = {
     free_game,
     true,
     solve_game,
-    true,
-    game_can_format_as_text_now,
     game_text_format,
     execute_move,
     game_status,
