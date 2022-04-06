@@ -81,59 +81,65 @@
 
 /* --- structures for params, state, etc. --- */
 
-#define MAX_BRIDGES     4
+#define MAX_BRIDGES 4
 
 #define PREFERRED_TILE_SIZE 24
-#define TILE_SIZE       (ds->tilesize)
-#define BORDER          (TILE_SIZE / 2)
+#define TILE_SIZE (ds->tilesize)
+#define BORDER (TILE_SIZE / 2)
 
-#define COORD(x)  ( (x) * TILE_SIZE + BORDER )
-#define FROMCOORD(x)  ( ((x) - BORDER + TILE_SIZE) / TILE_SIZE - 1 )
+#define COORD(x) ((x)*TILE_SIZE + BORDER)
+#define FROMCOORD(x) (((x)-BORDER + TILE_SIZE) / TILE_SIZE - 1)
 
 #define FLASH_TIME 0.50F
 
-enum {
+enum
+{
     COL_BACKGROUND,
     COL_FOREGROUND,
-    COL_HIGHLIGHT, COL_LOWLIGHT,
-    COL_SELECTED, COL_MARK,
-    COL_HINT, COL_GRID,
+    COL_HIGHLIGHT,
+    COL_LOWLIGHT,
+    COL_SELECTED,
+    COL_MARK,
+    COL_HINT,
+    COL_GRID,
     COL_WARNING,
     COL_CURSOR,
     NCOLOURS
 };
 
-struct game_params {
+struct game_params
+{
     int w, h, maxb;
-    int islands, expansion;     /* %age of island squares, %age chance of expansion */
+    int islands, expansion; /* %age of island squares, %age chance of expansion */
     bool allowloops;
     int difficulty;
 };
 
 /* general flags used by all structs */
-#define G_ISLAND        0x0001
-#define G_LINEV         0x0002     /* contains a vert. line */
-#define G_LINEH         0x0004     /* contains a horiz. line (mutex with LINEV) */
-#define G_LINE          (G_LINEV|G_LINEH)
-#define G_MARKV         0x0008
-#define G_MARKH         0x0010
-#define G_MARK          (G_MARKV|G_MARKH)
-#define G_NOLINEV       0x0020
-#define G_NOLINEH       0x0040
-#define G_NOLINE        (G_NOLINEV|G_NOLINEH)
+#define G_ISLAND 0x0001
+#define G_LINEV 0x0002 /* contains a vert. line */
+#define G_LINEH 0x0004 /* contains a horiz. line (mutex with LINEV) */
+#define G_LINE (G_LINEV | G_LINEH)
+#define G_MARKV 0x0008
+#define G_MARKH 0x0010
+#define G_MARK (G_MARKV | G_MARKH)
+#define G_NOLINEV 0x0020
+#define G_NOLINEH 0x0040
+#define G_NOLINE (G_NOLINEV | G_NOLINEH)
 
 /* flags used by the error checker */
-#define G_WARN          0x0080
+#define G_WARN 0x0080
 
 /* flags used by the solver etc. */
-#define G_SWEEP         0x1000
+#define G_SWEEP 0x1000
 
-#define G_FLAGSH        (G_LINEH|G_MARKH|G_NOLINEH)
-#define G_FLAGSV        (G_LINEV|G_MARKV|G_NOLINEV)
+#define G_FLAGSH (G_LINEH | G_MARKH | G_NOLINEH)
+#define G_FLAGSV (G_LINEV | G_MARKV | G_NOLINEV)
 
 typedef unsigned int grid_type; /* change me later if we invent > 16 bits of flags. */
 
-struct solver_state {
+struct solver_state
+{
     int *dsf, *comptspaces;
     int *tmpdsf, *tmpcompspaces;
     int refcount;
@@ -144,18 +150,24 @@ struct solver_state {
  * find234 instead), but Purify showed that board generation (mostly the solver)
  * was spending 60% of its time in find234. */
 
-struct surrounds { /* cloned from lightup.c */
-    struct { int x, y, dx, dy, off; } points[4];
+struct surrounds
+{ /* cloned from lightup.c */
+    struct
+    {
+        int x, y, dx, dy, off;
+    } points[4];
     int npoints, nislands;
 };
 
-struct island {
-  game_state *state;
-  int x, y, count;
-  struct surrounds adj;
+struct island
+{
+    game_state *state;
+    int x, y, count;
+    struct surrounds adj;
 };
 
-struct game_state {
+struct game_state
+{
     int w, h, maxb;
     bool completed, solved;
     bool allowloops;
@@ -171,36 +183,37 @@ struct game_state {
 
 #define GRIDSZ(s) ((s)->w * (s)->h * sizeof(grid_type))
 
-#define INGRID(s,x,y) ((x) >= 0 && (x) < (s)->w && (y) >= 0 && (y) < (s)->h)
+#define INGRID(s, x, y) ((x) >= 0 && (x) < (s)->w && (y) >= 0 && (y) < (s)->h)
 
-#define DINDEX(x,y) ((y)*state->w + (x))
+#define DINDEX(x, y) ((y)*state->w + (x))
 
-#define INDEX(s,g,x,y) ((s)->g[(y)*((s)->w) + (x)])
-#define IDX(s,g,i) ((s)->g[(i)])
-#define GRID(s,x,y) INDEX(s,grid,x,y)
-#define POSSIBLES(s,dx,x,y) ((dx) ? (INDEX(s,possh,x,y)) : (INDEX(s,possv,x,y)))
-#define MAXIMUM(s,dx,x,y) ((dx) ? (INDEX(s,maxh,x,y)) : (INDEX(s,maxv,x,y)))
+#define INDEX(s, g, x, y) ((s)->g[(y) * ((s)->w) + (x)])
+#define IDX(s, g, i) ((s)->g[(i)])
+#define GRID(s, x, y) INDEX(s, grid, x, y)
+#define POSSIBLES(s, dx, x, y) ((dx) ? (INDEX(s, possh, x, y)) : (INDEX(s, possv, x, y)))
+#define MAXIMUM(s, dx, x, y) ((dx) ? (INDEX(s, maxh, x, y)) : (INDEX(s, maxv, x, y)))
 
-#define GRIDCOUNT(s,x,y,f) ((GRID(s,x,y) & (f)) ? (INDEX(s,lines,x,y)) : 0)
+#define GRIDCOUNT(s, x, y, f) ((GRID(s, x, y) & (f)) ? (INDEX(s, lines, x, y)) : 0)
 
-#define WITHIN2(x,min,max) ((x) >= (min) && (x) < (max))
-#define WITHIN(x,min,max) ((min) > (max) ? \
-                           WITHIN2(x,max,min) : WITHIN2(x,min,max))
+#define WITHIN2(x, min, max) ((x) >= (min) && (x) < (max))
+#define WITHIN(x, min, max) ((min) > (max) ? WITHIN2(x, max, min) : WITHIN2(x, min, max))
 
 /* --- island struct and tree support functions --- */
 
-#define ISLAND_ORTH(is,j,f,df) \
-    (is->f + (is->adj.points[(j)].off*is->adj.points[(j)].df))
+#define ISLAND_ORTH(is, j, f, df) \
+    (is->f + (is->adj.points[(j)].off * is->adj.points[(j)].df))
 
-#define ISLAND_ORTHX(is,j) ISLAND_ORTH(is,j,x,dx)
-#define ISLAND_ORTHY(is,j) ISLAND_ORTH(is,j,y,dy)
+#define ISLAND_ORTHX(is, j) ISLAND_ORTH(is, j, x, dx)
+#define ISLAND_ORTHY(is, j) ISLAND_ORTH(is, j, y, dy)
 
 static void fixup_islands_for_realloc(game_state *state)
 {
     int i;
 
-    for (i = 0; i < state->w*state->h; i++) state->gridi[i] = NULL;
-    for (i = 0; i < state->n_islands; i++) {
+    for (i = 0; i < state->w * state->h; i++)
+        state->gridi[i] = NULL;
+    for (i = 0; i < state->n_islands; i++)
+    {
         struct island *is = &state->islands[i];
         is->state = state;
         INDEX(state, gridi, is->x, is->y) = is;
@@ -219,22 +232,33 @@ static char *game_text_format(const game_state *state)
     struct island *is;
     grid_type grid;
 
-    len = (state->h) * (state->w+1) + 1;
+    len = (state->h) * (state->w + 1) + 1;
     ret = snewn(len, char);
     p = ret;
 
-    for (y = 0; y < state->h; y++) {
-        for (x = 0; x < state->w; x++) {
-            grid = GRID(state,x,y);
-            nl = INDEX(state,lines,x,y);
+    for (y = 0; y < state->h; y++)
+    {
+        for (x = 0; x < state->w; x++)
+        {
+            grid = GRID(state, x, y);
+            nl = INDEX(state, lines, x, y);
             is = INDEX(state, gridi, x, y);
-            if (is) {
+            if (is)
+            {
                 *p++ = '0' + is->count;
-            } else if (grid & G_LINEV) {
-                *p++ = (nl > 1) ? '"' : (nl == 1) ? '|' : '!'; /* gaah, want a double-bar. */
-            } else if (grid & G_LINEH) {
-                *p++ = (nl > 1) ? '=' : (nl == 1) ? '-' : '~';
-            } else {
+            }
+            else if (grid & G_LINEV)
+            {
+                *p++ = (nl > 1) ? '"' : (nl == 1) ? '|'
+                                                  : '!'; /* gaah, want a double-bar. */
+            }
+            else if (grid & G_LINEH)
+            {
+                *p++ = (nl > 1) ? '=' : (nl == 1) ? '-'
+                                                  : '~';
+            }
+            else
+            {
                 *p++ = '.';
             }
         }
@@ -283,21 +307,25 @@ static void debug_state(game_state *state)
 
 static void island_set_surrounds(struct island *is)
 {
-    assert(INGRID(is->state,is->x,is->y));
+    assert(INGRID(is->state, is->x, is->y));
     is->adj.npoints = is->adj.nislands = 0;
-#define ADDPOINT(cond,ddx,ddy) do {\
-    if (cond) { \
-        is->adj.points[is->adj.npoints].x = is->x+(ddx); \
-        is->adj.points[is->adj.npoints].y = is->y+(ddy); \
-        is->adj.points[is->adj.npoints].dx = (ddx); \
-        is->adj.points[is->adj.npoints].dy = (ddy); \
-        is->adj.points[is->adj.npoints].off = 0; \
-        is->adj.npoints++; \
-    } } while(0)
-    ADDPOINT(is->x > 0,                -1,  0);
-    ADDPOINT(is->x < (is->state->w-1), +1,  0);
-    ADDPOINT(is->y > 0,                 0, -1);
-    ADDPOINT(is->y < (is->state->h-1),  0, +1);
+#define ADDPOINT(cond, ddx, ddy)                               \
+    do                                                         \
+    {                                                          \
+        if (cond)                                              \
+        {                                                      \
+            is->adj.points[is->adj.npoints].x = is->x + (ddx); \
+            is->adj.points[is->adj.npoints].y = is->y + (ddy); \
+            is->adj.points[is->adj.npoints].dx = (ddx);        \
+            is->adj.points[is->adj.npoints].dy = (ddy);        \
+            is->adj.points[is->adj.npoints].off = 0;           \
+            is->adj.npoints++;                                 \
+        }                                                      \
+    } while (0)
+    ADDPOINT(is->x > 0, -1, 0);
+    ADDPOINT(is->x < (is->state->w - 1), +1, 0);
+    ADDPOINT(is->y > 0, 0, -1);
+    ADDPOINT(is->y < (is->state->h - 1), 0, +1);
 }
 
 static void island_find_orthogonal(struct island *is)
@@ -307,15 +335,18 @@ static void island_find_orthogonal(struct island *is)
     int i, x, y, dx, dy, off;
 
     is->adj.nislands = 0;
-    for (i = 0; i < is->adj.npoints; i++) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
         dx = is->adj.points[i].dx;
         dy = is->adj.points[i].dy;
         x = is->x + dx;
         y = is->y + dy;
         off = 1;
         is->adj.points[i].off = 0;
-        while (INGRID(is->state, x, y)) {
-            if (GRID(is->state, x, y) & G_ISLAND) {
+        while (INGRID(is->state, x, y))
+        {
+            if (GRID(is->state, x, y) & G_ISLAND)
+            {
                 is->adj.points[i].off = off;
                 is->adj.nislands++;
                 /*debug(("island (%d,%d) has orth is. %d*(%d,%d) away at (%d,%d).\n",
@@ -323,10 +354,11 @@ static void island_find_orthogonal(struct island *is)
                        ISLAND_ORTHX(is,i), ISLAND_ORTHY(is,i)));*/
                 goto foundisland;
             }
-            off++; x += dx; y += dy;
+            off++;
+            x += dx;
+            y += dy;
         }
-foundisland:
-        ;
+    foundisland:;
     }
 }
 
@@ -336,7 +368,8 @@ static bool island_hasbridge(struct island *is, int direction)
     int y = is->adj.points[direction].y;
     grid_type gline = is->adj.points[direction].dx ? G_LINEH : G_LINEV;
 
-    if (GRID(is->state, x, y) & gline) return true;
+    if (GRID(is->state, x, y) & gline)
+        return true;
     return false;
 }
 
@@ -345,8 +378,10 @@ static struct island *island_find_connection(struct island *is, int adjpt)
     struct island *is_r;
 
     assert(adjpt < is->adj.npoints);
-    if (!is->adj.points[adjpt].off) return NULL;
-    if (!island_hasbridge(is, adjpt)) return NULL;
+    if (!is->adj.points[adjpt].off)
+        return NULL;
+    if (!island_hasbridge(is, adjpt))
+        return NULL;
 
     is_r = INDEX(is->state, gridi,
                  ISLAND_ORTHX(is, adjpt), ISLAND_ORTHY(is, adjpt));
@@ -360,17 +395,18 @@ static struct island *island_add(game_state *state, int x, int y, int count)
     struct island *is;
     bool realloced = false;
 
-    assert(!(GRID(state,x,y) & G_ISLAND));
-    GRID(state,x,y) |= G_ISLAND;
+    assert(!(GRID(state, x, y) & G_ISLAND));
+    GRID(state, x, y) |= G_ISLAND;
 
     state->n_islands++;
-    if (state->n_islands > state->n_islands_alloc) {
+    if (state->n_islands > state->n_islands_alloc)
+    {
         state->n_islands_alloc = state->n_islands * 2;
         state->islands =
             sresize(state->islands, state->n_islands_alloc, struct island);
         realloced = true;
     }
-    is = &state->islands[state->n_islands-1];
+    is = &state->islands[state->n_islands - 1];
 
     memset(is, 0, sizeof(struct island));
     is->state = state;
@@ -387,7 +423,6 @@ static struct island *island_add(game_state *state, int x, int y, int count)
     return is;
 }
 
-
 /* n = -1 means 'flip NOLINE flags [and set line to 0].' */
 static void island_join(struct island *i1, struct island *i2, int n, bool is_max)
 {
@@ -397,49 +432,82 @@ static void island_join(struct island *i1, struct island *i2, int n, bool is_max
     assert(i1->state == i2->state);
     assert(n >= -1 && n <= i1->state->maxb);
 
-    if (i1->x == i2->x) {
+    if (i1->x == i2->x)
+    {
         x = i1->x;
-        if (i1->y < i2->y) {
-            s = i1->y+1; e = i2->y-1;
-        } else {
-            s = i2->y+1; e = i1->y-1;
+        if (i1->y < i2->y)
+        {
+            s = i1->y + 1;
+            e = i2->y - 1;
         }
-        for (y = s; y <= e; y++) {
-            if (is_max) {
-                INDEX(state,maxv,x,y) = n;
-            } else {
-                if (n < 0) {
-                    GRID(state,x,y) ^= G_NOLINEV;
-                } else if (n == 0) {
-                    GRID(state,x,y) &= ~G_LINEV;
-                } else {
-                    GRID(state,x,y) |= G_LINEV;
-                    INDEX(state,lines,x,y) = n;
+        else
+        {
+            s = i2->y + 1;
+            e = i1->y - 1;
+        }
+        for (y = s; y <= e; y++)
+        {
+            if (is_max)
+            {
+                INDEX(state, maxv, x, y) = n;
+            }
+            else
+            {
+                if (n < 0)
+                {
+                    GRID(state, x, y) ^= G_NOLINEV;
+                }
+                else if (n == 0)
+                {
+                    GRID(state, x, y) &= ~G_LINEV;
+                }
+                else
+                {
+                    GRID(state, x, y) |= G_LINEV;
+                    INDEX(state, lines, x, y) = n;
                 }
             }
         }
-    } else if (i1->y == i2->y) {
+    }
+    else if (i1->y == i2->y)
+    {
         y = i1->y;
-        if (i1->x < i2->x) {
-            s = i1->x+1; e = i2->x-1;
-        } else {
-            s = i2->x+1; e = i1->x-1;
+        if (i1->x < i2->x)
+        {
+            s = i1->x + 1;
+            e = i2->x - 1;
         }
-        for (x = s; x <= e; x++) {
-            if (is_max) {
-                INDEX(state,maxh,x,y) = n;
-            } else {
-                if (n < 0) {
-                    GRID(state,x,y) ^= G_NOLINEH;
-                } else if (n == 0) {
-                    GRID(state,x,y) &= ~G_LINEH;
-                } else {
-                    GRID(state,x,y) |= G_LINEH;
-                    INDEX(state,lines,x,y) = n;
+        else
+        {
+            s = i2->x + 1;
+            e = i1->x - 1;
+        }
+        for (x = s; x <= e; x++)
+        {
+            if (is_max)
+            {
+                INDEX(state, maxh, x, y) = n;
+            }
+            else
+            {
+                if (n < 0)
+                {
+                    GRID(state, x, y) ^= G_NOLINEH;
+                }
+                else if (n == 0)
+                {
+                    GRID(state, x, y) &= ~G_LINEH;
+                }
+                else
+                {
+                    GRID(state, x, y) |= G_LINEH;
+                    INDEX(state, lines, x, y) = n;
                 }
             }
         }
-    } else {
+    }
+    else
+    {
         assert(!"island_join: islands not orthogonal.");
     }
 }
@@ -449,7 +517,8 @@ static int island_countbridges(struct island *is)
 {
     int i, c = 0;
 
-    for (i = 0; i < is->adj.npoints; i++) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
         c += GRIDCOUNT(is->state,
                        is->adj.points[i].x, is->adj.points[i].y,
                        is->adj.points[i].dx ? G_LINEH : G_LINEV);
@@ -469,9 +538,11 @@ static int island_adjspace(struct island *is, bool marks, int missing,
     dx = is->adj.points[direction].dx;
     gline = dx ? G_LINEH : G_LINEV;
 
-    if (marks) {
+    if (marks)
+    {
         mline = dx ? G_MARKH : G_MARKV;
-        if (GRID(is->state,x,y) & mline) return 0;
+        if (GRID(is->state, x, y) & mline)
+            return 0;
     }
     poss = POSSIBLES(is->state, dx, x, y);
     poss = min(poss, missing);
@@ -489,9 +560,11 @@ static int island_countspaces(struct island *is, bool marks)
     int i, c = 0, missing;
 
     missing = is->count - island_countbridges(is);
-    if (missing < 0) return 0;
+    if (missing < 0)
+        return 0;
 
-    for (i = 0; i < is->adj.npoints; i++) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
         c += island_adjspace(is, marks, missing, i);
     }
     return c;
@@ -508,11 +581,14 @@ static int island_isadj(struct island *is, int direction)
 
     mline = is->adj.points[direction].dx ? G_MARKH : G_MARKV;
     gline = is->adj.points[direction].dx ? G_LINEH : G_LINEV;
-    if (GRID(is->state, x, y) & mline) {
+    if (GRID(is->state, x, y) & mline)
+    {
         /* If we're marked (i.e. the thing to attach to is complete)
          * only count an adjacency if we're already attached. */
         return GRIDCOUNT(is->state, x, y, gline);
-    } else {
+    }
+    else
+    {
         /* If we're unmarked, count possible adjacency iff it's
          * flagged as POSSIBLE. */
         return POSSIBLES(is->state, is->adj.points[direction].dx, x, y);
@@ -526,8 +602,10 @@ static int island_countadj(struct island *is)
 {
     int i, nadj = 0;
 
-    for (i = 0; i < is->adj.npoints; i++) {
-        if (island_isadj(is, i)) nadj++;
+    for (i = 0; i < is->adj.npoints; i++)
+    {
+        if (island_isadj(is, i))
+            nadj++;
     }
     return nadj;
 }
@@ -541,28 +619,34 @@ static void island_togglemark(struct island *is)
     GRID(is->state, is->x, is->y) ^= G_MARK;
 
     /* ...remove all marks on non-island squares... */
-    for (x = 0; x < is->state->w; x++) {
-        for (y = 0; y < is->state->h; y++) {
+    for (x = 0; x < is->state->w; x++)
+    {
+        for (y = 0; y < is->state->h; y++)
+        {
             if (!(GRID(is->state, x, y) & G_ISLAND))
                 GRID(is->state, x, y) &= ~G_MARK;
         }
     }
 
     /* ...and add marks to squares around marked islands. */
-    for (i = 0; i < is->state->n_islands; i++) {
+    for (i = 0; i < is->state->n_islands; i++)
+    {
         is_loop = &is->state->islands[i];
         if (!(GRID(is_loop->state, is_loop->x, is_loop->y) & G_MARK))
             continue;
 
-        for (j = 0; j < is_loop->adj.npoints; j++) {
+        for (j = 0; j < is_loop->adj.npoints; j++)
+        {
             /* if this direction takes us to another island, mark all
              * squares between the two islands. */
-            if (!is_loop->adj.points[j].off) continue;
+            if (!is_loop->adj.points[j].off)
+                continue;
             assert(is_loop->adj.points[j].off > 1);
-            for (o = 1; o < is_loop->adj.points[j].off; o++) {
+            for (o = 1; o < is_loop->adj.points[j].off; o++)
+            {
                 GRID(is_loop->state,
-                     is_loop->x + is_loop->adj.points[j].dx*o,
-                     is_loop->y + is_loop->adj.points[j].dy*o) |=
+                     is_loop->x + is_loop->adj.points[j].dx * o,
+                     is_loop->y + is_loop->adj.points[j].dy * o) |=
                     is_loop->adj.points[j].dy ? G_MARKV : G_MARKH;
             }
         }
@@ -575,54 +659,64 @@ static bool island_impossible(struct island *is, bool strict)
     int i, poss;
     struct island *is_orth;
 
-    if (nspc < 0) {
+    if (nspc < 0)
+    {
         debug(("island at (%d,%d) impossible because full.\n", is->x, is->y));
-        return true;        /* too many bridges */
-    } else if ((curr + island_countspaces(is, false)) < is->count) {
+        return true; /* too many bridges */
+    }
+    else if ((curr + island_countspaces(is, false)) < is->count)
+    {
         debug(("island at (%d,%d) impossible because not enough spaces.\n", is->x, is->y));
-        return true;        /* impossible to create enough bridges */
-    } else if (strict && curr < is->count) {
+        return true; /* impossible to create enough bridges */
+    }
+    else if (strict && curr < is->count)
+    {
         debug(("island at (%d,%d) impossible because locked.\n", is->x, is->y));
-        return true;        /* not enough bridges and island is locked */
+        return true; /* not enough bridges and island is locked */
     }
 
     /* Count spaces in surrounding islands. */
     nsurrspc = 0;
-    for (i = 0; i < is->adj.npoints; i++) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
         int ifree, dx = is->adj.points[i].dx;
 
-        if (!is->adj.points[i].off) continue;
+        if (!is->adj.points[i].off)
+            continue;
         poss = POSSIBLES(is->state, dx,
                          is->adj.points[i].x, is->adj.points[i].y);
-        if (poss == 0) continue;
+        if (poss == 0)
+            continue;
         is_orth = INDEX(is->state, gridi,
-                        ISLAND_ORTHX(is,i), ISLAND_ORTHY(is,i));
+                        ISLAND_ORTHX(is, i), ISLAND_ORTHY(is, i));
         assert(is_orth);
 
         ifree = is_orth->count - island_countbridges(is_orth);
-        if (ifree > 0) {
-	    /*
-	     * ifree is the number of bridges unfilled in the other
-	     * island, which is clearly an upper bound on the number
-	     * of extra bridges this island may run to it.
-	     *
-	     * Another upper bound is the number of bridges unfilled
-	     * on the specific line between here and there. We must
-	     * take the minimum of both.
-	     */
-	    int bmax = MAXIMUM(is->state, dx,
-			       is->adj.points[i].x, is->adj.points[i].y);
-	    int bcurr = GRIDCOUNT(is->state,
-				  is->adj.points[i].x, is->adj.points[i].y,
-				  dx ? G_LINEH : G_LINEV);
-	    assert(bcurr <= bmax);
+        if (ifree > 0)
+        {
+            /*
+             * ifree is the number of bridges unfilled in the other
+             * island, which is clearly an upper bound on the number
+             * of extra bridges this island may run to it.
+             *
+             * Another upper bound is the number of bridges unfilled
+             * on the specific line between here and there. We must
+             * take the minimum of both.
+             */
+            int bmax = MAXIMUM(is->state, dx,
+                               is->adj.points[i].x, is->adj.points[i].y);
+            int bcurr = GRIDCOUNT(is->state,
+                                  is->adj.points[i].x, is->adj.points[i].y,
+                                  dx ? G_LINEH : G_LINEV);
+            assert(bcurr <= bmax);
             nsurrspc += min(ifree, bmax - bcurr);
-	}
+        }
     }
-    if (nsurrspc < nspc) {
+    if (nsurrspc < nspc)
+    {
         debug(("island at (%d,%d) impossible: surr. islands %d spc, need %d.\n",
                is->x, is->y, nsurrspc, nspc));
-        return true;       /* not enough spaces around surrounding islands to fill this one. */
+        return true; /* not enough spaces around surrounding islands to fill this one. */
     }
 
     return false;
@@ -633,15 +727,15 @@ static bool island_impossible(struct island *is, bool strict)
 #define DEFAULT_PRESET 0
 
 static const struct game_params bridges_presets[] = {
-  { 7, 7, 2, 30, 10, 1, 0 },
-  { 7, 7, 2, 30, 10, 1, 1 },
-  { 7, 7, 2, 30, 10, 1, 2 },
-  { 10, 10, 2, 30, 10, 1, 0 },
-  { 10, 10, 2, 30, 10, 1, 1 },
-  { 10, 10, 2, 30, 10, 1, 2 },
-  { 15, 15, 2, 30, 10, 1, 0 },
-  { 15, 15, 2, 30, 10, 1, 1 },
-  { 15, 15, 2, 30, 10, 1, 2 },
+    {7, 7, 2, 30, 10, 1, 0},
+    {7, 7, 2, 30, 10, 1, 1},
+    {7, 7, 2, 30, 10, 1, 2},
+    {10, 10, 2, 30, 10, 1, 0},
+    {10, 10, 2, 30, 10, 1, 1},
+    {10, 10, 2, 30, 10, 1, 2},
+    {15, 15, 2, 30, 10, 1, 0},
+    {15, 15, 2, 30, 10, 1, 1},
+    {15, 15, 2, 30, 10, 1, 2},
 };
 
 static game_params *default_params(void)
@@ -665,8 +759,8 @@ static bool game_fetch_preset(int i, char **name, game_params **params)
     *params = ret;
 
     sprintf(buf, "%dx%d %s", ret->w, ret->h,
-            ret->difficulty == 0 ? "easy" :
-            ret->difficulty == 1 ? "medium" : "hard");
+            ret->difficulty == 0 ? "easy" : ret->difficulty == 1 ? "medium"
+                                                                 : "hard");
     *name = dupstr(buf);
 
     return true;
@@ -680,41 +774,50 @@ static void free_params(game_params *params)
 static game_params *dup_params(const game_params *params)
 {
     game_params *ret = snew(game_params);
-    *ret = *params;		       /* structure copy */
+    *ret = *params; /* structure copy */
     return ret;
 }
 
-#define EATNUM(x) do { \
-    (x) = atoi(string); \
-    while (*string && isdigit((unsigned char)*string)) string++; \
-} while(0)
+#define EATNUM(x)                                          \
+    do                                                     \
+    {                                                      \
+        (x) = atoi(string);                                \
+        while (*string && isdigit((unsigned char)*string)) \
+            string++;                                      \
+    } while (0)
 
 static void decode_params(game_params *params, char const *string)
 {
     EATNUM(params->w);
     params->h = params->w;
-    if (*string == 'x') {
+    if (*string == 'x')
+    {
         string++;
         EATNUM(params->h);
     }
-    if (*string == 'i') {
+    if (*string == 'i')
+    {
         string++;
         EATNUM(params->islands);
     }
-    if (*string == 'e') {
+    if (*string == 'e')
+    {
         string++;
         EATNUM(params->expansion);
     }
-    if (*string == 'm') {
+    if (*string == 'm')
+    {
         string++;
         EATNUM(params->maxb);
     }
     params->allowloops = true;
-    if (*string == 'L') {
+    if (*string == 'L')
+    {
         string++;
         params->allowloops = false;
     }
-    if (*string == 'd') {
+    if (*string == 'd')
+    {
         string++;
         EATNUM(params->difficulty);
     }
@@ -724,12 +827,15 @@ static char *encode_params(const game_params *params, bool full)
 {
     char buf[80];
 
-    if (full) {
+    if (full)
+    {
         sprintf(buf, "%dx%di%de%dm%d%sd%d",
                 params->w, params->h, params->islands, params->expansion,
                 params->maxb, params->allowloops ? "" : "L",
                 params->difficulty);
-    } else {
+    }
+    else
+    {
         sprintf(buf, "%dx%dm%d%s", params->w, params->h,
                 params->maxb, params->allowloops ? "" : "L");
     }
@@ -771,7 +877,7 @@ static config_item *game_configure(const game_params *params)
     ret[5].name = "%age of island squares";
     ret[5].type = C_CHOICES;
     ret[5].u.choices.choicenames = ":5%:10%:15%:20%:25%:30%";
-    ret[5].u.choices.selected = (params->islands / 5)-1;
+    ret[5].u.choices.selected = (params->islands / 5) - 1;
 
     ret[6].name = "Expansion factor (%age)";
     ret[6].type = C_CHOICES;
@@ -788,13 +894,13 @@ static game_params *custom_params(const config_item *cfg)
 {
     game_params *ret = snew(game_params);
 
-    ret->w          = atoi(cfg[0].u.string.sval);
-    ret->h          = atoi(cfg[1].u.string.sval);
+    ret->w = atoi(cfg[0].u.string.sval);
+    ret->h = atoi(cfg[1].u.string.sval);
     ret->difficulty = cfg[2].u.choices.selected;
     ret->allowloops = cfg[3].u.boolean.bval;
-    ret->maxb       = cfg[4].u.choices.selected + 1;
-    ret->islands    = (cfg[5].u.choices.selected + 1) * 5;
-    ret->expansion  = cfg[6].u.choices.selected * 10;
+    ret->maxb = cfg[4].u.choices.selected + 1;
+    ret->islands = (cfg[5].u.choices.selected + 1) * 5;
+    ret->expansion = cfg[6].u.choices.selected * 10;
 
     return ret;
 }
@@ -805,7 +911,8 @@ static const char *validate_params(const game_params *params, bool full)
         return "Width and height must be at least 3";
     if (params->maxb < 1 || params->maxb > MAX_BRIDGES)
         return "Too many bridges.";
-    if (full) {
+    if (full)
+    {
         if (params->islands <= 0 || params->islands > 30)
             return "%age of island squares must be between 1% and 30%";
         if (params->expansion < 0 || params->expansion > 100)
@@ -819,35 +926,43 @@ static const char *validate_params(const game_params *params, bool full)
 static char *encode_game(game_state *state)
 {
     char *ret, *p;
-    int wh = state->w*state->h, run, x, y;
+    int wh = state->w * state->h, run, x, y;
     struct island *is;
 
     ret = snewn(wh + 1, char);
     p = ret;
     run = 0;
-    for (y = 0; y < state->h; y++) {
-        for (x = 0; x < state->w; x++) {
+    for (y = 0; y < state->h; y++)
+    {
+        for (x = 0; x < state->w; x++)
+        {
             is = INDEX(state, gridi, x, y);
-            if (is) {
-                if (run) {
-                    *p++ = ('a'-1) + run;
+            if (is)
+            {
+                if (run)
+                {
+                    *p++ = ('a' - 1) + run;
                     run = 0;
                 }
                 if (is->count < 10)
                     *p++ = '0' + is->count;
                 else
                     *p++ = 'A' + (is->count - 10);
-            } else {
-                if (run == 26) {
-                    *p++ = ('a'-1) + run;
+            }
+            else
+            {
+                if (run == 26)
+                {
+                    *p++ = ('a' - 1) + run;
                     run = 0;
                 }
                 run++;
             }
         }
     }
-    if (run) {
-        *p++ = ('a'-1) + run;
+    if (run)
+    {
+        *p++ = ('a' - 1) + run;
         run = 0;
     }
     *p = '\0';
@@ -864,30 +979,36 @@ static char *game_state_diff(const game_state *src, const game_state *dest)
     grid_type gline, nline;
     struct island *is_s, *is_d, *is_orth;
 
-#define APPEND do {                                     \
-    if (movelen + len >= movesize) {                    \
-        movesize = movelen + len + 256;                 \
-        move = sresize(move, movesize, char);           \
-    }                                                   \
-    strcpy(move + movelen, buf);                        \
-    movelen += len;                                     \
-} while(0)
+#define APPEND                                    \
+    do                                            \
+    {                                             \
+        if (movelen + len >= movesize)            \
+        {                                         \
+            movesize = movelen + len + 256;       \
+            move = sresize(move, movesize, char); \
+        }                                         \
+        strcpy(move + movelen, buf);              \
+        movelen += len;                           \
+    } while (0)
 
     move[movelen++] = 'S';
     move[movelen] = '\0';
 
     assert(src->n_islands == dest->n_islands);
 
-    for (i = 0; i < src->n_islands; i++) {
+    for (i = 0; i < src->n_islands; i++)
+    {
         is_s = &src->islands[i];
         is_d = &dest->islands[i];
         assert(is_s->x == is_d->x);
         assert(is_s->y == is_d->y);
         assert(is_s->adj.npoints == is_d->adj.npoints); /* more paranoia */
 
-        for (d = 0; d < is_s->adj.npoints; d++) {
+        for (d = 0; d < is_s->adj.npoints; d++)
+        {
             if (is_s->adj.points[d].dx == -1 ||
-                is_s->adj.points[d].dy == -1) continue;
+                is_s->adj.points[d].dy == -1)
+                continue;
 
             x = is_s->adj.points[d].x;
             y = is_s->adj.points[d].y;
@@ -896,14 +1017,16 @@ static char *game_state_diff(const game_state *src, const game_state *dest)
             is_orth = INDEX(dest, gridi,
                             ISLAND_ORTHX(is_d, d), ISLAND_ORTHY(is_d, d));
 
-            if (GRIDCOUNT(src, x, y, gline) != GRIDCOUNT(dest, x, y, gline)) {
+            if (GRIDCOUNT(src, x, y, gline) != GRIDCOUNT(dest, x, y, gline))
+            {
                 assert(is_orth);
                 len = sprintf(buf, ";L%d,%d,%d,%d,%d",
                               is_s->x, is_s->y, is_orth->x, is_orth->y,
                               GRIDCOUNT(dest, x, y, gline));
                 APPEND;
             }
-            if ((GRID(src,x,y) & nline) != (GRID(dest, x, y) & nline)) {
+            if ((GRID(src, x, y) & nline) != (GRID(dest, x, y) & nline))
+            {
                 assert(is_orth);
                 len = sprintf(buf, ";N%d,%d,%d,%d",
                               is_s->x, is_s->y, is_orth->x, is_orth->y);
@@ -911,7 +1034,8 @@ static char *game_state_diff(const game_state *src, const game_state *dest)
             }
         }
         if ((GRID(src, is_s->x, is_s->y) & G_MARK) !=
-            (GRID(dest, is_d->x, is_d->y) & G_MARK)) {
+            (GRID(dest, is_d->x, is_d->y) & G_MARK))
+        {
             len = sprintf(buf, ";M%d,%d", is_s->x, is_s->y);
             APPEND;
         }
@@ -931,15 +1055,18 @@ static void map_update_possibles(game_state *state)
     struct island *is_s = NULL, *is_f = NULL;
 
     /* Run down vertical stripes [un]setting possv... */
-    for (x = 0; x < state->w; x++) {
+    for (x = 0; x < state->w; x++)
+    {
         idx = x;
         s = e = -1;
         bl = false;
-        maxb = state->params.maxb;     /* placate optimiser */
+        maxb = state->params.maxb; /* placate optimiser */
         /* Unset possible flags until we find an island. */
-        for (y = 0; y < state->h; y++) {
+        for (y = 0; y < state->h; y++)
+        {
             is_s = IDX(state, gridi, idx);
-            if (is_s) {
+            if (is_s)
+            {
                 maxb = is_s->count;
                 break;
             }
@@ -947,29 +1074,37 @@ static void map_update_possibles(game_state *state)
             IDX(state, possv, idx) = 0;
             idx += w;
         }
-        for (; y < state->h; y++) {
+        for (; y < state->h; y++)
+        {
             maxb = min(maxb, IDX(state, maxv, idx));
             is_f = IDX(state, gridi, idx);
-            if (is_f) {
+            if (is_f)
+            {
                 assert(is_s);
                 np = min(maxb, is_f->count);
 
-                if (s != -1) {
-                    for (i = s; i <= e; i++) {
+                if (s != -1)
+                {
+                    for (i = s; i <= e; i++)
+                    {
                         INDEX(state, possv, x, i) = bl ? 0 : np;
                     }
                 }
-                s = y+1;
+                s = y + 1;
                 bl = false;
                 is_s = is_f;
                 maxb = is_s->count;
-            } else {
+            }
+            else
+            {
                 e = y;
-                if (IDX(state,grid,idx) & (G_LINEH|G_NOLINEV)) bl = true;
+                if (IDX(state, grid, idx) & (G_LINEH | G_NOLINEV))
+                    bl = true;
             }
             idx += w;
         }
-        if (s != -1) {
+        if (s != -1)
+        {
             for (i = s; i <= e; i++)
                 INDEX(state, possv, x, i) = 0;
         }
@@ -977,14 +1112,17 @@ static void map_update_possibles(game_state *state)
 
     /* ...and now do horizontal stripes [un]setting possh. */
     /* can we lose this clone'n'hack? */
-    for (y = 0; y < state->h; y++) {
-        idx = y*w;
+    for (y = 0; y < state->h; y++)
+    {
+        idx = y * w;
         s = e = -1;
         bl = false;
-        maxb = state->params.maxb;     /* placate optimiser */
-        for (x = 0; x < state->w; x++) {
+        maxb = state->params.maxb; /* placate optimiser */
+        for (x = 0; x < state->w; x++)
+        {
             is_s = IDX(state, gridi, idx);
-            if (is_s) {
+            if (is_s)
+            {
                 maxb = is_s->count;
                 break;
             }
@@ -992,29 +1130,37 @@ static void map_update_possibles(game_state *state)
             IDX(state, possh, idx) = 0;
             idx += 1;
         }
-        for (; x < state->w; x++) {
+        for (; x < state->w; x++)
+        {
             maxb = min(maxb, IDX(state, maxh, idx));
             is_f = IDX(state, gridi, idx);
-            if (is_f) {
+            if (is_f)
+            {
                 assert(is_s);
                 np = min(maxb, is_f->count);
 
-                if (s != -1) {
-                    for (i = s; i <= e; i++) {
+                if (s != -1)
+                {
+                    for (i = s; i <= e; i++)
+                    {
                         INDEX(state, possh, i, y) = bl ? 0 : np;
                     }
                 }
-                s = x+1;
+                s = x + 1;
                 bl = false;
                 is_s = is_f;
                 maxb = is_s->count;
-            } else {
+            }
+            else
+            {
                 e = x;
-                if (IDX(state,grid,idx) & (G_LINEV|G_NOLINEH)) bl = true;
+                if (IDX(state, grid, idx) & (G_LINEV | G_NOLINEH))
+                    bl = true;
             }
             idx += 1;
         }
-        if (s != -1) {
+        if (s != -1)
+        {
             for (i = s; i <= e; i++)
                 INDEX(state, possh, i, y) = 0;
         }
@@ -1027,16 +1173,19 @@ static void map_count(game_state *state)
     grid_type flag, grid;
     struct island *is;
 
-    for (i = 0; i < state->n_islands; i++) {
+    for (i = 0; i < state->n_islands; i++)
+    {
         is = &state->islands[i];
         is->count = 0;
-        for (n = 0; n < is->adj.npoints; n++) {
+        for (n = 0; n < is->adj.npoints; n++)
+        {
             ax = is->adj.points[n].x;
             ay = is->adj.points[n].y;
             flag = (ax == is->x) ? G_LINEV : G_LINEH;
-            grid = GRID(state,ax,ay);
-            if (grid & flag) {
-                is->count += INDEX(state,lines,ax,ay);
+            grid = GRID(state, ax, ay);
+            if (grid & flag)
+            {
+                is->count += INDEX(state, lines, ax, ay);
             }
         }
     }
@@ -1046,19 +1195,22 @@ static void map_find_orthogonal(game_state *state)
 {
     int i;
 
-    for (i = 0; i < state->n_islands; i++) {
+    for (i = 0; i < state->n_islands; i++)
+    {
         island_find_orthogonal(&state->islands[i]);
     }
 }
 
-struct bridges_neighbour_ctx {
+struct bridges_neighbour_ctx
+{
     game_state *state;
     int i, n, neighbours[4];
 };
 static int bridges_neighbour(int vertex, void *vctx)
 {
     struct bridges_neighbour_ctx *ctx = (struct bridges_neighbour_ctx *)vctx;
-    if (vertex >= 0) {
+    if (vertex >= 0)
+    {
         game_state *state = ctx->state;
         int w = state->w, x = vertex % w, y = vertex / w;
         grid_type grid = GRID(state, x, y), gline = grid & G_LINE;
@@ -1068,21 +1220,32 @@ static int bridges_neighbour(int vertex, void *vctx)
         ctx->i = ctx->n = 0;
 
         is = INDEX(state, gridi, x, y);
-        if (is) {
-            for (i = 0; i < is->adj.npoints; i++) {
+        if (is)
+        {
+            for (i = 0; i < is->adj.npoints; i++)
+            {
                 gline = is->adj.points[i].dx ? G_LINEH : G_LINEV;
                 if (GRID(state, is->adj.points[i].x,
-                         is->adj.points[i].y) & gline) {
+                         is->adj.points[i].y) &
+                    gline)
+                {
                     ctx->neighbours[ctx->n++] =
                         (is->adj.points[i].y * w + is->adj.points[i].x);
                 }
             }
-        } else if (gline) {
-            if (gline & G_LINEV) {
+        }
+        else if (gline)
+        {
+            if (gline & G_LINEV)
+            {
                 x1 = x2 = x;
-                y1 = y-1; y2 = y+1;
-            } else {
-                x1 = x-1; x2 = x+1;
+                y1 = y - 1;
+                y2 = y + 1;
+            }
+            else
+            {
+                x1 = x - 1;
+                x2 = x + 1;
                 y1 = y2 = y;
             }
             /* Non-island squares with edges in should never be
@@ -1113,16 +1276,19 @@ static bool map_hasloops(game_state *state, bool mark)
     ctx.state = state;
     ret = findloop_run(fls, state->w * state->h, bridges_neighbour, &ctx);
 
-    if (mark) {
-        for (y = 0; y < state->h; y++) {
-            for (x = 0; x < state->w; x++) {
+    if (mark)
+    {
+        for (y = 0; y < state->h; y++)
+        {
+            for (x = 0; x < state->w; x++)
+            {
                 int u, v;
 
                 u = y * state->w + x;
                 for (v = bridges_neighbour(u, &ctx); v >= 0;
                      v = bridges_neighbour(-1, &ctx))
                     if (findloop_is_loop_edge(fls, u, v))
-                        GRID(state,x,y) |= G_WARN;
+                        GRID(state, x, y) |= G_WARN;
             }
         }
     }
@@ -1133,7 +1299,7 @@ static bool map_hasloops(game_state *state, bool mark)
 
 static void map_group(game_state *state)
 {
-    int i, wh = state->w*state->h, d1, d2;
+    int i, wh = state->w * state->h, d1, d2;
     int x, y, x2, y2;
     int *dsf = state->solver->dsf;
     struct island *is, *is_join;
@@ -1144,32 +1310,42 @@ static void map_group(game_state *state)
     /* For each island, find connected islands right or down
      * and merge the dsf for the island squares as well as the
      * bridge squares. */
-    for (x = 0; x < state->w; x++) {
-        for (y = 0; y < state->h; y++) {
-            GRID(state,x,y) &= ~(G_SWEEP|G_WARN); /* for group_full. */
+    for (x = 0; x < state->w; x++)
+    {
+        for (y = 0; y < state->h; y++)
+        {
+            GRID(state, x, y) &= ~(G_SWEEP | G_WARN); /* for group_full. */
 
             is = INDEX(state, gridi, x, y);
-            if (!is) continue;
-            d1 = DINDEX(x,y);
-            for (i = 0; i < is->adj.npoints; i++) {
+            if (!is)
+                continue;
+            d1 = DINDEX(x, y);
+            for (i = 0; i < is->adj.npoints; i++)
+            {
                 /* only want right/down */
                 if (is->adj.points[i].dx == -1 ||
-                    is->adj.points[i].dy == -1) continue;
+                    is->adj.points[i].dy == -1)
+                    continue;
 
                 is_join = island_find_connection(is, i);
-                if (!is_join) continue;
+                if (!is_join)
+                    continue;
 
                 d2 = DINDEX(is_join->x, is_join->y);
-                if (dsf_canonify(dsf,d1) == dsf_canonify(dsf,d2)) {
+                if (dsf_canonify(dsf, d1) == dsf_canonify(dsf, d2))
+                {
                     ; /* we have a loop. See comment in map_hasloops. */
                     /* However, we still want to merge all squares joining
                      * this side-that-makes-a-loop. */
                 }
                 /* merge all squares between island 1 and island 2. */
-                for (x2 = x; x2 <= is_join->x; x2++) {
-                    for (y2 = y; y2 <= is_join->y; y2++) {
-                        d2 = DINDEX(x2,y2);
-                        if (d1 != d2) dsf_merge(dsf,d1,d2);
+                for (x2 = x; x2 <= is_join->x; x2++)
+                {
+                    for (y2 = y; y2 <= is_join->y; y2++)
+                    {
+                        d2 = DINDEX(x2, y2);
+                        if (d1 != d2)
+                            dsf_merge(dsf, d1, d2);
                     }
                 }
             }
@@ -1185,28 +1361,34 @@ static bool map_group_check(game_state *state, int canon, bool warn,
     bool allfull = true;
     struct island *is;
 
-    for (i = 0; i < state->n_islands; i++) {
+    for (i = 0; i < state->n_islands; i++)
+    {
         is = &state->islands[i];
-        if (dsf_canonify(dsf, DINDEX(is->x,is->y)) != canon) continue;
+        if (dsf_canonify(dsf, DINDEX(is->x, is->y)) != canon)
+            continue;
 
         GRID(state, is->x, is->y) |= G_SWEEP;
         nislands++;
         if (island_countbridges(is) != is->count)
             allfull = false;
     }
-    if (warn && allfull && nislands != state->n_islands) {
+    if (warn && allfull && nislands != state->n_islands)
+    {
         /* we're full and this island group isn't the whole set.
          * Mark all squares with this dsf canon as ERR. */
-        for (x = 0; x < state->w; x++) {
-            for (y = 0; y < state->h; y++) {
-                if (dsf_canonify(dsf, DINDEX(x,y)) == canon) {
-                    GRID(state,x,y) |= G_WARN;
+        for (x = 0; x < state->w; x++)
+        {
+            for (y = 0; y < state->h; y++)
+            {
+                if (dsf_canonify(dsf, DINDEX(x, y)) == canon)
+                {
+                    GRID(state, x, y) |= G_WARN;
                 }
             }
         }
-
     }
-    if (nislands_r) *nislands_r = nislands;
+    if (nislands_r)
+        *nislands_r = nislands;
     return allfull;
 }
 
@@ -1219,12 +1401,14 @@ static bool map_group_full(game_state *state, int *ngroups_r)
 
     /* NB this assumes map_group (or sth else) has cleared G_SWEEP. */
 
-    for (i = 0; i < state->n_islands; i++) {
+    for (i = 0; i < state->n_islands; i++)
+    {
         is = &state->islands[i];
-        if (GRID(state,is->x,is->y) & G_SWEEP) continue;
+        if (GRID(state, is->x, is->y) & G_SWEEP)
+            continue;
 
         ngroups++;
-        if (map_group_check(state, dsf_canonify(dsf, DINDEX(is->x,is->y)),
+        if (map_group_check(state, dsf_canonify(dsf, DINDEX(is->x, is->y)),
                             true, NULL))
             anyfull = true;
     }
@@ -1238,7 +1422,8 @@ static bool map_check(game_state *state)
     int ngroups;
 
     /* Check for loops, if necessary. */
-    if (!state->allowloops) {
+    if (!state->allowloops)
+    {
         if (map_hasloops(state, true))
             return false;
     }
@@ -1246,8 +1431,10 @@ static bool map_check(game_state *state)
     /* Place islands into island groups and check for early
      * satisfied-groups. */
     map_group(state); /* clears WARN and SWEEP */
-    if (map_group_full(state, &ngroups)) {
-        if (ngroups == 1) return true;
+    if (map_group_full(state, &ngroups))
+    {
+        if (ngroups == 1)
+            return true;
     }
     return false;
 }
@@ -1256,10 +1443,12 @@ static void map_clear(game_state *state)
 {
     int x, y;
 
-    for (x = 0; x < state->w; x++) {
-        for (y = 0; y < state->h; y++) {
+    for (x = 0; x < state->w; x++)
+    {
+        for (y = 0; y < state->h; y++)
+        {
             /* clear most flags; might want to be slightly more careful here. */
-            GRID(state,x,y) &= G_ISLAND;
+            GRID(state, x, y) &= G_ISLAND;
         }
     }
 }
@@ -1278,7 +1467,8 @@ static void solve_join(struct island *is, int direction, int n, bool is_max)
            is->x, is->y, is_orth->x, is_orth->y, n));*/
     island_join(is, is_orth, n, is_max);
 
-    if (n > 0 && !is_max) {
+    if (n > 0 && !is_max)
+    {
         d1 = DINDEX(is->x, is->y);
         d2 = DINDEX(is_orth->x, is_orth->y);
         if (dsf_canonify(dsf, d1) != dsf_canonify(dsf, d2))
@@ -1292,11 +1482,16 @@ static int solve_fillone(struct island *is)
 
     debug(("solve_fillone for island (%d,%d).\n", is->x, is->y));
 
-    for (i = 0; i < is->adj.npoints; i++) {
-        if (island_isadj(is, i)) {
-            if (island_hasbridge(is, i)) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
+        if (island_isadj(is, i))
+        {
+            if (island_hasbridge(is, i))
+            {
                 /* already attached; do nothing. */;
-            } else {
+            }
+            else
+            {
                 solve_join(is, i, 1, false);
                 nadded++;
             }
@@ -1314,12 +1509,15 @@ static int solve_fill(struct island *is)
     debug(("solve_fill for island (%d,%d).\n", is->x, is->y));
 
     missing = is->count - island_countbridges(is);
-    if (missing < 0) return 0;
+    if (missing < 0)
+        return 0;
 
     /* very like island_countspaces. */
-    for (i = 0; i < is->adj.npoints; i++) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
         nnew = island_adjspace(is, true, missing, i);
-        if (nnew) {
+        if (nnew)
+        {
             ncurr = GRIDCOUNT(is->state,
                               is->adj.points[i].x, is->adj.points[i].y,
                               is->adj.points[i].dx ? G_LINEH : G_LINEV);
@@ -1342,36 +1540,50 @@ static bool solve_island_stage1(struct island *is, bool *didsth_r)
 
     /*debug(("island at (%d,%d) filled %d/%d (%d spc) nadj %d\n",
            is->x, is->y, bridges, is->count, nspaces, nadj));*/
-    if (bridges > is->count) {
+    if (bridges > is->count)
+    {
         /* We only ever add bridges when we're sure they fit, or that's
          * the only place they can go. If we've added bridges such that
          * another island has become wrong, the puzzle must not have had
          * a solution. */
         debug(("...island at (%d,%d) is overpopulated!\n", is->x, is->y));
         return false;
-    } else if (bridges == is->count) {
+    }
+    else if (bridges == is->count)
+    {
         /* This island is full. Make sure it's marked (and update
          * possibles if we did). */
-        if (!(GRID(is->state, is->x, is->y) & G_MARK)) {
+        if (!(GRID(is->state, is->x, is->y) & G_MARK))
+        {
             debug(("...marking island (%d,%d) as full.\n", is->x, is->y));
             island_togglemark(is);
             didsth = true;
         }
-    } else if (GRID(is->state, is->x, is->y) & G_MARK) {
+    }
+    else if (GRID(is->state, is->x, is->y) & G_MARK)
+    {
         debug(("...island (%d,%d) is marked but unfinished!\n",
                is->x, is->y));
         return false; /* island has been marked unfinished; no solution from here. */
-    } else {
+    }
+    else
+    {
         /* This is the interesting bit; we try and fill in more information
          * about this island. */
-        if (is->count == bridges + nspaces) {
-            if (solve_fill(is) > 0) didsth = true;
-        } else if (is->count > ((nadj-1) * is->state->maxb)) {
+        if (is->count == bridges + nspaces)
+        {
+            if (solve_fill(is) > 0)
+                didsth = true;
+        }
+        else if (is->count > ((nadj - 1) * is->state->maxb))
+        {
             /* must have at least one bridge in each possible direction. */
-            if (solve_fillone(is) > 0) didsth = true;
+            if (solve_fillone(is) > 0)
+                didsth = true;
         }
     }
-    if (didsth) {
+    if (didsth)
+    {
         map_update_possibles(is->state);
         *didsth_r = true;
     }
@@ -1393,13 +1605,15 @@ static bool solve_island_checkloop(struct island *is, int direction)
         return false; /* no adj island */
 
     is_orth = INDEX(is->state, gridi,
-                    ISLAND_ORTHX(is,direction),
-                    ISLAND_ORTHY(is,direction));
-    if (!is_orth) return false;
+                    ISLAND_ORTHX(is, direction),
+                    ISLAND_ORTHY(is, direction));
+    if (!is_orth)
+        return false;
 
     d1 = DINDEX(is->x, is->y);
     d2 = DINDEX(is_orth->x, is_orth->y);
-    if (dsf_canonify(dsf, d1) == dsf_canonify(dsf, d2)) {
+    if (dsf_canonify(dsf, d1) == dsf_canonify(dsf, d2))
+    {
         /* two islands are connected already; don't join them. */
         return true;
     }
@@ -1413,14 +1627,18 @@ static bool solve_island_stage2(struct island *is, bool *didsth_r)
 
     assert(didsth_r);
 
-    for (i = 0; i < is->adj.npoints; i++) {
-        if (solve_island_checkloop(is, i)) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
+        if (solve_island_checkloop(is, i))
+        {
             debug(("removing possible loop at (%d,%d) direction %d.\n",
                    is->x, is->y, i));
             solve_join(is, i, -1, false);
             map_update_possibles(is->state);
             removed = true;
-        } else {
+        }
+        else
+        {
             navail += island_isadj(is, i);
             /*debug(("stage2: navail for (%d,%d) direction (%d,%d) is %d.\n",
                    is->x, is->y,
@@ -1431,10 +1649,13 @@ static bool solve_island_stage2(struct island *is, bool *didsth_r)
 
     /*debug(("island at (%d,%d) navail %d: checking...\n", is->x, is->y, navail));*/
 
-    for (i = 0; i < is->adj.npoints; i++) {
-        if (!island_hasbridge(is, i)) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
+        if (!island_hasbridge(is, i))
+        {
             nadj = island_isadj(is, i);
-            if (nadj > 0 && (navail - nadj) < is->count) {
+            if (nadj > 0 && (navail - nadj) < is->count)
+            {
                 /* we couldn't now complete the island without at
                  * least one bridge here; put it in. */
                 /*debug(("nadj %d, navail %d, is->count %d.\n",
@@ -1449,8 +1670,10 @@ static bool solve_island_stage2(struct island *is, bool *didsth_r)
             }
         }
     }
-    if (added) map_update_possibles(is->state);
-    if (added || removed) *didsth_r = true;
+    if (added)
+        map_update_possibles(is->state);
+    if (added || removed)
+        *didsth_r = true;
     return true;
 }
 
@@ -1463,19 +1686,22 @@ static bool solve_island_subgroup(struct island *is, int direction)
     debug(("..checking subgroups.\n"));
 
     /* if is isn't full, return 0. */
-    if (island_countbridges(is) < is->count) {
+    if (island_countbridges(is) < is->count)
+    {
         debug(("...orig island (%d,%d) not full.\n", is->x, is->y));
         return false;
     }
 
-    if (direction >= 0) {
+    if (direction >= 0)
+    {
         is_join = INDEX(state, gridi,
                         ISLAND_ORTHX(is, direction),
                         ISLAND_ORTHY(is, direction));
         assert(is_join);
 
         /* if is_join isn't full, return 0. */
-        if (island_countbridges(is_join) < is_join->count) {
+        if (island_countbridges(is_join) < is_join->count)
+        {
             debug(("...dest island (%d,%d) not full.\n",
                    is_join->x, is_join->y));
             return false;
@@ -1483,15 +1709,19 @@ static bool solve_island_subgroup(struct island *is, int direction)
     }
 
     /* Check group membership for is->dsf; if it's full return 1. */
-    if (map_group_check(state, dsf_canonify(dsf, DINDEX(is->x,is->y)),
-                        false, &nislands)) {
-        if (nislands < state->n_islands) {
+    if (map_group_check(state, dsf_canonify(dsf, DINDEX(is->x, is->y)),
+                        false, &nislands))
+    {
+        if (nislands < state->n_islands)
+        {
             /* we have a full subgroup that isn't the whole set.
              * This isn't allowed. */
             debug(("island at (%d,%d) makes full subgroup, disallowing.\n",
                    is->x, is->y));
             return true;
-        } else {
+        }
+        else
+        {
             debug(("...has finished puzzle.\n"));
         }
     }
@@ -1504,9 +1734,11 @@ static bool solve_island_impossible(game_state *state)
     int i;
 
     /* If any islands are impossible, return 1. */
-    for (i = 0; i < state->n_islands; i++) {
+    for (i = 0; i < state->n_islands; i++)
+    {
         is = &state->islands[i];
-        if (island_impossible(is, false)) {
+        if (island_impossible(is, false))
+        {
             debug(("island at (%d,%d) has become impossible, disallowing.\n",
                    is->x, is->y));
             return true;
@@ -1526,32 +1758,37 @@ static bool solve_island_stage3(struct island *is, bool *didsth_r)
     assert(didsth_r);
 
     missing = is->count - island_countbridges(is);
-    if (missing <= 0) return true;
+    if (missing <= 0)
+        return true;
 
-    for (i = 0; i < is->adj.npoints; i++) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
         x = is->adj.points[i].x;
         y = is->adj.points[i].y;
         spc = island_adjspace(is, true, missing, i);
-        if (spc == 0) continue;
+        if (spc == 0)
+            continue;
 
         curr = GRIDCOUNT(is->state, x, y,
                          is->adj.points[i].dx ? G_LINEH : G_LINEV);
         debug(("island at (%d,%d) s3, trying %d - %d bridges.\n",
-               is->x, is->y, curr+1, curr+spc));
+               is->x, is->y, curr + 1, curr + spc));
 
         /* Now we know that this island could have more bridges,
          * to bring the total from curr+1 to curr+spc. */
         maxb = -1;
         /* We have to squirrel the dsf away and restore it afterwards;
          * it is additive only, and can't be removed from. */
-        memcpy(ss->tmpdsf, ss->dsf, wh*sizeof(int));
-        for (n = curr+1; n <= curr+spc; n++) {
+        memcpy(ss->tmpdsf, ss->dsf, wh * sizeof(int));
+        for (n = curr + 1; n <= curr + spc; n++)
+        {
             solve_join(is, i, n, false);
             map_update_possibles(is->state);
 
             if (solve_island_subgroup(is, i) ||
-                solve_island_impossible(is->state)) {
-                maxb = n-1;
+                solve_island_impossible(is->state))
+            {
+                maxb = n - 1;
                 debug(("island at (%d,%d) d(%d,%d) new max of %d bridges:\n",
                        is->x, is->y,
                        is->adj.points[i].dx, is->adj.points[i].dy,
@@ -1560,14 +1797,18 @@ static bool solve_island_stage3(struct island *is, bool *didsth_r)
             }
         }
         solve_join(is, i, curr, false); /* put back to before. */
-        memcpy(ss->dsf, ss->tmpdsf, wh*sizeof(int));
+        memcpy(ss->dsf, ss->tmpdsf, wh * sizeof(int));
 
-        if (maxb != -1) {
+        if (maxb != -1)
+        {
             /*debug_state(is->state);*/
-            if (maxb == 0) {
+            if (maxb == 0)
+            {
                 debug(("...adding NOLINE.\n"));
                 solve_join(is, i, -1, false); /* we can't have any bridges here. */
-            } else {
+            }
+            else
+            {
                 debug(("...setting maximum\n"));
                 solve_join(is, i, maxb, true);
             }
@@ -1576,7 +1817,8 @@ static bool solve_island_stage3(struct island *is, bool *didsth_r)
         map_update_possibles(is->state);
     }
 
-    for (i = 0; i < is->adj.npoints; i++) {
+    for (i = 0; i < is->adj.npoints; i++)
+    {
         /*
          * Now check to see if any currently empty direction must have
          * at least one bridge in order to avoid forming an isolated
@@ -1620,21 +1862,26 @@ static bool solve_island_stage3(struct island *is, bool *didsth_r)
         int j;
 
         spc = island_adjspace(is, true, missing, i);
-        if (spc == 0) continue;
+        if (spc == 0)
+            continue;
 
         for (j = 0; j < is->adj.npoints; j++)
             before[j] = GRIDCOUNT(is->state,
                                   is->adj.points[j].x,
                                   is->adj.points[j].y,
                                   is->adj.points[j].dx ? G_LINEH : G_LINEV);
-        if (before[i] != 0) continue;  /* this idea is pointless otherwise */
+        if (before[i] != 0)
+            continue; /* this idea is pointless otherwise */
 
-        memcpy(ss->tmpdsf, ss->dsf, wh*sizeof(int));
+        memcpy(ss->tmpdsf, ss->dsf, wh * sizeof(int));
 
-        for (j = 0; j < is->adj.npoints; j++) {
+        for (j = 0; j < is->adj.npoints; j++)
+        {
             spc = island_adjspace(is, true, missing, j);
-            if (spc == 0) continue;
-            if (j == i) continue;
+            if (spc == 0)
+                continue;
+            if (j == i)
+                continue;
             solve_join(is, j, before[j] + spc, false);
         }
         map_update_possibles(is->state);
@@ -1644,9 +1891,10 @@ static bool solve_island_stage3(struct island *is, bool *didsth_r)
 
         for (j = 0; j < is->adj.npoints; j++)
             solve_join(is, j, before[j], false);
-        memcpy(ss->dsf, ss->tmpdsf, wh*sizeof(int));
+        memcpy(ss->dsf, ss->tmpdsf, wh * sizeof(int));
 
-        if (got) {
+        if (got)
+        {
             debug(("island at (%d,%d) must connect in direction (%d,%d) to"
                    " avoid full subgroup.\n",
                    is->x, is->y, is->adj.points[i].dx, is->adj.points[i].dy));
@@ -1657,56 +1905,75 @@ static bool solve_island_stage3(struct island *is, bool *didsth_r)
         map_update_possibles(is->state);
     }
 
-    if (didsth) *didsth_r = didsth;
+    if (didsth)
+        *didsth_r = didsth;
     return true;
 }
 
-#define CONTINUE_IF_FULL do {                           \
-if (GRID(state, is->x, is->y) & G_MARK) {            \
-    /* island full, don't try fixing it */           \
-    continue;                                        \
-} } while(0)
+#define CONTINUE_IF_FULL                           \
+    do                                             \
+    {                                              \
+        if (GRID(state, is->x, is->y) & G_MARK)    \
+        {                                          \
+            /* island full, don't try fixing it */ \
+            continue;                              \
+        }                                          \
+    } while (0)
 
 static int solve_sub(game_state *state, int difficulty, int depth)
 {
     struct island *is;
     int i;
 
-    while (1) {
+    while (1)
+    {
         bool didsth = false;
 
         /* First island iteration: things we can work out by looking at
          * properties of the island as a whole. */
-        for (i = 0; i < state->n_islands; i++) {
+        for (i = 0; i < state->n_islands; i++)
+        {
             is = &state->islands[i];
-            if (!solve_island_stage1(is, &didsth)) return 0;
+            if (!solve_island_stage1(is, &didsth))
+                return 0;
         }
-        if (didsth) continue;
-        else if (difficulty < 1) break;
+        if (didsth)
+            continue;
+        else if (difficulty < 1)
+            break;
 
         /* Second island iteration: thing we can work out by looking at
          * properties of individual island connections. */
-        for (i = 0; i < state->n_islands; i++) {
+        for (i = 0; i < state->n_islands; i++)
+        {
             is = &state->islands[i];
             CONTINUE_IF_FULL;
-            if (!solve_island_stage2(is, &didsth)) return 0;
+            if (!solve_island_stage2(is, &didsth))
+                return 0;
         }
-        if (didsth) continue;
-        else if (difficulty < 2) break;
+        if (didsth)
+            continue;
+        else if (difficulty < 2)
+            break;
 
         /* Third island iteration: things we can only work out by looking
          * at groups of islands. */
-        for (i = 0; i < state->n_islands; i++) {
+        for (i = 0; i < state->n_islands; i++)
+        {
             is = &state->islands[i];
-            if (!solve_island_stage3(is, &didsth)) return 0;
+            if (!solve_island_stage3(is, &didsth))
+                return 0;
         }
-        if (didsth) continue;
-        else if (difficulty < 3) break;
+        if (didsth)
+            continue;
+        else if (difficulty < 3)
+            break;
 
         /* If we can be bothered, write a recursive solver to finish here. */
         break;
     }
-    if (map_check(state)) return 1; /* solved it */
+    if (map_check(state))
+        return 1; /* solved it */
     return 0;
 }
 
@@ -1740,24 +2007,25 @@ static game_state *new_state(const game_params *params)
     ret->grid = snewn(wh, grid_type);
     memset(ret->grid, 0, GRIDSZ(ret));
 
-    ret->wha = snewn(wh*N_WH_ARRAYS, char);
-    memset(ret->wha, 0, wh*N_WH_ARRAYS*sizeof(char));
+    ret->wha = snewn(wh * N_WH_ARRAYS, char);
+    memset(ret->wha, 0, wh * N_WH_ARRAYS * sizeof(char));
 
     ret->possv = ret->wha;
     ret->possh = ret->wha + wh;
-    ret->lines = ret->wha + wh*2;
-    ret->maxv = ret->wha + wh*3;
-    ret->maxh = ret->wha + wh*4;
+    ret->lines = ret->wha + wh * 2;
+    ret->maxv = ret->wha + wh * 3;
+    ret->maxh = ret->wha + wh * 4;
 
-    memset(ret->maxv, ret->maxb, wh*sizeof(char));
-    memset(ret->maxh, ret->maxb, wh*sizeof(char));
+    memset(ret->maxv, ret->maxb, wh * sizeof(char));
+    memset(ret->maxh, ret->maxb, wh * sizeof(char));
 
     ret->islands = NULL;
     ret->n_islands = 0;
     ret->n_islands_alloc = 0;
 
     ret->gridi = snewn(wh, struct island *);
-    for (i = 0; i < wh; i++) ret->gridi[i] = NULL;
+    for (i = 0; i < wh; i++)
+        ret->gridi[i] = NULL;
 
     ret->solved = false;
     ret->completed = false;
@@ -1774,7 +2042,7 @@ static game_state *new_state(const game_params *params)
 static game_state *dup_game(const game_state *state)
 {
     game_state *ret = snew(game_state);
-    int wh = state->w*state->h;
+    int wh = state->w * state->h;
 
     ret->w = state->w;
     ret->h = state->h;
@@ -1785,14 +2053,14 @@ static game_state *dup_game(const game_state *state)
     ret->grid = snewn(wh, grid_type);
     memcpy(ret->grid, state->grid, GRIDSZ(ret));
 
-    ret->wha = snewn(wh*N_WH_ARRAYS, char);
-    memcpy(ret->wha, state->wha, wh*N_WH_ARRAYS*sizeof(char));
+    ret->wha = snewn(wh * N_WH_ARRAYS, char);
+    memcpy(ret->wha, state->wha, wh * N_WH_ARRAYS * sizeof(char));
 
     ret->possv = ret->wha;
     ret->possh = ret->wha + wh;
-    ret->lines = ret->wha + wh*2;
-    ret->maxv = ret->wha + wh*3;
-    ret->maxh = ret->wha + wh*4;
+    ret->lines = ret->wha + wh * 2;
+    ret->maxv = ret->wha + wh * 3;
+    ret->maxh = ret->wha + wh * 4;
 
     ret->islands = snewn(state->n_islands, struct island);
     memcpy(ret->islands, state->islands, state->n_islands * sizeof(struct island));
@@ -1812,7 +2080,8 @@ static game_state *dup_game(const game_state *state)
 
 static void free_game(game_state *state)
 {
-    if (--state->solver->refcount <= 0) {
+    if (--state->solver->refcount <= 0)
+    {
         sfree(state->solver->dsf);
         sfree(state->solver->tmpdsf);
         sfree(state->solver);
@@ -1827,15 +2096,24 @@ static void free_game(game_state *state)
     sfree(state);
 }
 
-#define MAX_NEWISLAND_TRIES     50
-#define MIN_SENSIBLE_ISLANDS    3
+#define MAX_NEWISLAND_TRIES 50
+#define MIN_SENSIBLE_ISLANDS 3
 
-#define ORDER(a,b) do { if (a < b) { int tmp=a; int a=b; int b=tmp; } } while(0)
+#define ORDER(a, b)      \
+    do                   \
+    {                    \
+        if (a < b)       \
+        {                \
+            int tmp = a; \
+            int a = b;   \
+            int b = tmp; \
+        }                \
+    } while (0)
 
 static char *new_game_desc(const game_params *params, random_state *rs,
-			   char **aux, bool interactive)
+                           char **aux, bool interactive)
 {
-    game_state *tobuild  = NULL;
+    game_state *tobuild = NULL;
     int i, j, wh = params->w * params->h, x, y, dx, dy;
     int minx, miny, maxx, maxy, joinx, joiny, newx, newy, diffx, diffy;
     int ni_req = max((params->islands * wh) / 100, MIN_SENSIBLE_ISLANDS), ni_curr, ni_bad;
@@ -1845,7 +2123,8 @@ static char *new_game_desc(const game_params *params, random_state *rs,
 
     /* pick a first island position randomly. */
 generate:
-    if (tobuild) free_game(tobuild);
+    if (tobuild)
+        free_game(tobuild);
     tobuild = new_state(params);
 
     x = random_upto(rs, params->w);
@@ -1855,7 +2134,8 @@ generate:
     ni_bad = 0;
     debug(("Created initial island at (%d,%d).\n", x, y));
 
-    while (ni_curr < ni_req) {
+    while (ni_curr < ni_req)
+    {
         /* Pick a random island to try and extend from. */
         i = random_upto(rs, tobuild->n_islands);
         is = &tobuild->islands[i];
@@ -1867,42 +2147,57 @@ generate:
 
         /* Find out limits of where we could put a new island. */
         joinx = joiny = -1;
-        minx = is->x + 2*dx; miny = is->y + 2*dy; /* closest is 2 units away. */
-        x = is->x+dx; y = is->y+dy;
-        if (GRID(tobuild,x,y) & (G_LINEV|G_LINEH)) {
+        minx = is->x + 2 * dx;
+        miny = is->y + 2 * dy; /* closest is 2 units away. */
+        x = is->x + dx;
+        y = is->y + dy;
+        if (GRID(tobuild, x, y) & (G_LINEV | G_LINEH))
+        {
             /* already a line next to the island, continue. */
             goto bad;
         }
-        while (1) {
-            if (x < 0 || x >= params->w || y < 0 || y >= params->h) {
+        while (1)
+        {
+            if (x < 0 || x >= params->w || y < 0 || y >= params->h)
+            {
                 /* got past the edge; put a possible at the island
                  * and exit. */
-                maxx = x-dx; maxy = y-dy;
+                maxx = x - dx;
+                maxy = y - dy;
                 goto foundmax;
             }
-            if (GRID(tobuild,x,y) & G_ISLAND) {
+            if (GRID(tobuild, x, y) & G_ISLAND)
+            {
                 /* could join up to an existing island... */
-                joinx = x; joiny = y;
+                joinx = x;
+                joiny = y;
                 /* ... or make a new one 2 spaces away. */
-                maxx = x - 2*dx; maxy = y - 2*dy;
-                goto foundmax;
-            } else if (GRID(tobuild,x,y) & (G_LINEV|G_LINEH)) {
-                /* could make a new one 1 space away from the line. */
-                maxx = x - dx; maxy = y - dy;
+                maxx = x - 2 * dx;
+                maxy = y - 2 * dy;
                 goto foundmax;
             }
-            x += dx; y += dy;
+            else if (GRID(tobuild, x, y) & (G_LINEV | G_LINEH))
+            {
+                /* could make a new one 1 space away from the line. */
+                maxx = x - dx;
+                maxy = y - dy;
+                goto foundmax;
+            }
+            x += dx;
+            y += dy;
         }
 
-foundmax:
+    foundmax:
         debug(("Island at (%d,%d) with d(%d,%d) has new positions "
                "(%d,%d) -> (%d,%d), join (%d,%d).\n",
                is->x, is->y, dx, dy, minx, miny, maxx, maxy, joinx, joiny));
         /* Now we know where we could either put a new island
          * (between min and max), or (if loops are allowed) could join on
          * to an existing island (at join). */
-        if (params->allowloops && joinx != -1 && joiny != -1) {
-            if (random_upto(rs, 100) < (unsigned long)params->expansion) {
+        if (params->allowloops && joinx != -1 && joiny != -1)
+        {
+            if (random_upto(rs, 100) < (unsigned long)params->expansion)
+            {
                 is2 = INDEX(tobuild, gridi, joinx, joiny);
                 debug(("Joining island at (%d,%d) to (%d,%d).\n",
                        is->x, is->y, is2->x, is2->y));
@@ -1911,18 +2206,24 @@ foundmax:
         }
         diffx = (maxx - minx) * dx;
         diffy = (maxy - miny) * dy;
-        if (diffx < 0 || diffy < 0)  goto bad;
-        if (random_upto(rs,100) < (unsigned long)params->expansion) {
-            newx = maxx; newy = maxy;
+        if (diffx < 0 || diffy < 0)
+            goto bad;
+        if (random_upto(rs, 100) < (unsigned long)params->expansion)
+        {
+            newx = maxx;
+            newy = maxy;
             debug(("Creating new island at (%d,%d) (expanded).\n", newx, newy));
-        } else {
-            newx = minx + random_upto(rs,diffx+1)*dx;
-            newy = miny + random_upto(rs,diffy+1)*dy;
+        }
+        else
+        {
+            newx = minx + random_upto(rs, diffx + 1) * dx;
+            newy = miny + random_upto(rs, diffy + 1) * dy;
             debug(("Creating new island at (%d,%d).\n", newx, newy));
         }
         /* check we're not next to island in the other orthogonal direction. */
-        if ((INGRID(tobuild,newx+dy,newy+dx) && (GRID(tobuild,newx+dy,newy+dx) & G_ISLAND)) ||
-            (INGRID(tobuild,newx-dy,newy-dx) && (GRID(tobuild,newx-dy,newy-dx) & G_ISLAND))) {
+        if ((INGRID(tobuild, newx + dy, newy + dx) && (GRID(tobuild, newx + dy, newy + dx) & G_ISLAND)) ||
+            (INGRID(tobuild, newx - dy, newy - dx) && (GRID(tobuild, newx - dy, newy - dx) & G_ISLAND)))
+        {
             debug(("New location is adjacent to island, skipping.\n"));
             goto bad;
         }
@@ -1931,15 +2232,17 @@ foundmax:
          * been realloced by island_add... */
         is = &tobuild->islands[i]; /* ...but order will not change. */
 
-        ni_curr++; ni_bad = 0;
-join:
-        island_join(is, is2, random_upto(rs, tobuild->maxb)+1, false);
+        ni_curr++;
+        ni_bad = 0;
+    join:
+        island_join(is, is2, random_upto(rs, tobuild->maxb) + 1, false);
         debug_state(tobuild);
         continue;
 
-bad:
+    bad:
         ni_bad++;
-        if (ni_bad > MAX_NEWISLAND_TRIES) {
+        if (ni_bad > MAX_NEWISLAND_TRIES)
+        {
             debug(("Unable to create any new islands after %d tries; "
                    "created %d [%d%%] (instead of %d [%d%%] requested).\n",
                    MAX_NEWISLAND_TRIES,
@@ -1950,21 +2253,29 @@ bad:
     }
 
 generated:
-    if (ni_curr == 1) {
+    if (ni_curr == 1)
+    {
         debug(("Only generated one island (!), retrying.\n"));
         goto generate;
     }
     /* Check we have at least one island on each extremity of the grid. */
     echeck = 0;
-    for (x = 0; x < params->w; x++) {
-        if (INDEX(tobuild, gridi, x, 0))           echeck |= 1;
-        if (INDEX(tobuild, gridi, x, params->h-1)) echeck |= 2;
+    for (x = 0; x < params->w; x++)
+    {
+        if (INDEX(tobuild, gridi, x, 0))
+            echeck |= 1;
+        if (INDEX(tobuild, gridi, x, params->h - 1))
+            echeck |= 2;
     }
-    for (y = 0; y < params->h; y++) {
-        if (INDEX(tobuild, gridi, 0,           y)) echeck |= 4;
-        if (INDEX(tobuild, gridi, params->w-1, y)) echeck |= 8;
+    for (y = 0; y < params->h; y++)
+    {
+        if (INDEX(tobuild, gridi, 0, y))
+            echeck |= 4;
+        if (INDEX(tobuild, gridi, params->w - 1, y))
+            echeck |= 8;
     }
-    if (echeck != 15) {
+    if (echeck != 15)
+    {
         debug(("Generated grid doesn't fill to sides, retrying.\n"));
         goto generate;
     }
@@ -1972,16 +2283,19 @@ generated:
     map_count(tobuild);
     map_find_orthogonal(tobuild);
 
-    if (params->difficulty > 0) {
+    if (params->difficulty > 0)
+    {
         if ((ni_curr > MIN_SENSIBLE_ISLANDS) &&
-            (solve_from_scratch(tobuild, params->difficulty-1) > 0)) {
+            (solve_from_scratch(tobuild, params->difficulty - 1) > 0))
+        {
             debug(("Grid is solvable at difficulty %d (too easy); retrying.\n",
-                   params->difficulty-1));
+                   params->difficulty - 1));
             goto generate;
         }
     }
 
-    if (solve_from_scratch(tobuild, params->difficulty) == 0) {
+    if (solve_from_scratch(tobuild, params->difficulty) == 0)
+    {
         debug(("Grid not solvable at difficulty %d, (too hard); retrying.\n",
                params->difficulty));
         goto generate;
@@ -2006,7 +2320,8 @@ static const char *validate_desc(const game_params *params, const char *desc)
 {
     int i, wh = params->w * params->h;
 
-    for (i = 0; i < wh; i++) {
+    for (i = 0; i < wh; i++)
+    {
         if (*desc >= '1' && *desc <= '9')
             /* OK */;
         else if (*desc >= 'a' && *desc <= 'z')
@@ -2037,30 +2352,47 @@ static game_state *new_game_sub(const game_params *params, const char *desc)
 
     debug(("new_game[_sub]: desc = '%s'.\n", desc));
 
-    for (y = 0; y < params->h; y++) {
-        for (x = 0; x < params->w; x++) {
+    for (y = 0; y < params->h; y++)
+    {
+        for (x = 0; x < params->w; x++)
+        {
             char c = '\0';
 
-            if (run == 0) {
+            if (run == 0)
+            {
                 c = *desc++;
                 assert(c != 'S');
                 if (c >= 'a' && c <= 'z')
                     run = c - 'a' + 1;
             }
 
-            if (run > 0) {
+            if (run > 0)
+            {
                 c = 'S';
                 run--;
             }
 
-            switch (c) {
-            case '1': case '2': case '3': case '4':
-            case '5': case '6': case '7': case '8': case '9':
+            switch (c)
+            {
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
                 island_add(state, x, y, (c - '0'));
                 break;
 
-            case 'A': case 'B': case 'C': case 'D':
-            case 'E': case 'F': case 'G':
+            case 'A':
+            case 'B':
+            case 'C':
+            case 'D':
+            case 'E':
+            case 'F':
+            case 'G':
                 island_add(state, x, y, (c - 'A') + 10);
                 break;
 
@@ -2074,7 +2406,8 @@ static game_state *new_game_sub(const game_params *params, const char *desc)
             }
         }
     }
-    if (*desc) assert(!"Over-long desc.");
+    if (*desc)
+        assert(!"Over-long desc.");
 
     map_find_orthogonal(state);
     map_update_possibles(state);
@@ -2088,14 +2421,15 @@ static game_state *new_game(midend *me, const game_params *params,
     return new_game_sub(params, desc);
 }
 
-struct game_ui {
-    int dragx_src, dragy_src;   /* source; -1 means no drag */
-    int dragx_dst, dragy_dst;   /* src's closest orth island. */
+struct game_ui
+{
+    int dragx_src, dragy_src; /* source; -1 means no drag */
+    int dragx_dst, dragy_dst; /* src's closest orth island. */
     grid_type todraw;
     bool dragging, drag_is_noline;
     int nlines;
 
-    int cur_x, cur_y;           /* cursor position */
+    int cur_x, cur_y; /* cursor position */
     bool cur_visible;
     bool show_hints;
 };
@@ -2138,7 +2472,8 @@ static void game_changed_state(game_ui *ui, const game_state *oldstate,
 {
 }
 
-struct game_drawstate {
+struct game_drawstate
+{
     int tilesize;
     int w, h;
     unsigned long *grid, *newgrid;
@@ -2146,14 +2481,14 @@ struct game_drawstate {
     bool started, dragging;
 };
 
-
 static void game_get_cursor_location(const game_ui *ui,
                                      const game_drawstate *ds,
                                      const game_state *state,
                                      const game_params *params,
                                      int *x, int *y, int *w, int *h)
 {
-    if(ui->cur_visible) {
+    if (ui->cur_visible)
+    {
         *x = COORD(ui->cur_x);
         *y = COORD(ui->cur_y);
         *w = *h = TILE_SIZE;
@@ -2202,28 +2537,28 @@ static void game_get_cursor_location(const game_ui *ui,
  * little structs!
  */
 /* Flags for line data */
-#define DL_COUNTMASK    0x07
-#define DL_COUNT_CROSS  0x06
-#define DL_COUNT_HINT   0x07
-#define DL_COLMASK      0x18
-#define DL_COL_NORMAL   0x00
-#define DL_COL_WARNING  0x08
-#define DL_COL_FLASH    0x10
+#define DL_COUNTMASK 0x07
+#define DL_COUNT_CROSS 0x06
+#define DL_COUNT_HINT 0x07
+#define DL_COLMASK 0x18
+#define DL_COL_NORMAL 0x00
+#define DL_COL_WARNING 0x08
+#define DL_COL_FLASH 0x10
 #define DL_COL_SELECTED 0x18
-#define DL_LOCK         0x20
-#define DL_MASK         0x3F
+#define DL_LOCK 0x20
+#define DL_MASK 0x3F
 /* Flags for island data */
-#define DI_COLMASK      0x03
-#define DI_COL_NORMAL   0x00
-#define DI_COL_FLASH    0x01
-#define DI_COL_WARNING  0x02
+#define DI_COLMASK 0x03
+#define DI_COL_NORMAL 0x00
+#define DI_COL_FLASH 0x01
+#define DI_COL_WARNING 0x02
 #define DI_COL_SELECTED 0x03
-#define DI_BGMASK       0x0C
+#define DI_BGMASK 0x0C
 #define DI_BG_NO_ISLAND 0x00
-#define DI_BG_NORMAL    0x04
-#define DI_BG_MARK      0x08
-#define DI_BG_CURSOR    0x0C
-#define DI_MASK         0x0F
+#define DI_BG_NORMAL 0x04
+#define DI_BG_MARK 0x08
+#define DI_BG_CURSOR 0x0C
+#define DI_MASK 0x0F
 /* Shift counts for the format of a 32-bit word in an island square */
 #define D_I_ISLAND_SHIFT 0
 #define D_I_LINE_SHIFT_L 4
@@ -2245,41 +2580,58 @@ static char *update_drag_dst(const game_state *state, game_ui *ui,
     struct island *is;
     grid_type gtype, ntype, mtype, curr;
 
-    if (ui->dragx_src == -1 || ui->dragy_src == -1) return NULL;
+    if (ui->dragx_src == -1 || ui->dragy_src == -1)
+        return NULL;
 
     ui->dragx_dst = -1;
     ui->dragy_dst = -1;
 
     /* work out which of the four directions we're closest to... */
-    ox = COORD(ui->dragx_src) + TILE_SIZE/2;
-    oy = COORD(ui->dragy_src) + TILE_SIZE/2;
+    ox = COORD(ui->dragx_src) + TILE_SIZE / 2;
+    oy = COORD(ui->dragy_src) + TILE_SIZE / 2;
 
-    if (abs(nx-ox) < abs(ny-oy)) {
+    if (abs(nx - ox) < abs(ny - oy))
+    {
         dx = 0;
-        dy = (ny-oy) < 0 ? -1 : 1;
-        gtype = G_LINEV; ntype = G_NOLINEV; mtype = G_MARKV;
-        maxb = INDEX(state, maxv, ui->dragx_src+dx, ui->dragy_src+dy);
-    } else {
-        dy = 0;
-        dx = (nx-ox) < 0 ? -1 : 1;
-        gtype = G_LINEH; ntype = G_NOLINEH; mtype = G_MARKH;
-        maxb = INDEX(state, maxh, ui->dragx_src+dx, ui->dragy_src+dy);
+        dy = (ny - oy) < 0 ? -1 : 1;
+        gtype = G_LINEV;
+        ntype = G_NOLINEV;
+        mtype = G_MARKV;
+        maxb = INDEX(state, maxv, ui->dragx_src + dx, ui->dragy_src + dy);
     }
-    if (ui->drag_is_noline) {
+    else
+    {
+        dy = 0;
+        dx = (nx - ox) < 0 ? -1 : 1;
+        gtype = G_LINEH;
+        ntype = G_NOLINEH;
+        mtype = G_MARKH;
+        maxb = INDEX(state, maxh, ui->dragx_src + dx, ui->dragy_src + dy);
+    }
+    if (ui->drag_is_noline)
+    {
         ui->todraw = ntype;
-    } else {
-        curr = GRID(state, ui->dragx_src+dx, ui->dragy_src+dy);
-        currl = INDEX(state, lines, ui->dragx_src+dx, ui->dragy_src+dy);
+    }
+    else
+    {
+        curr = GRID(state, ui->dragx_src + dx, ui->dragy_src + dy);
+        currl = INDEX(state, lines, ui->dragx_src + dx, ui->dragy_src + dy);
 
-        if (curr & gtype) {
-            if (currl == maxb) {
+        if (curr & gtype)
+        {
+            if (currl == maxb)
+            {
                 ui->todraw = 0;
                 ui->nlines = 0;
-            } else {
+            }
+            else
+            {
                 ui->todraw = gtype;
                 ui->nlines = currl + 1;
             }
-        } else {
+        }
+        else
+        {
             ui->todraw = gtype;
             ui->nlines = 1;
         }
@@ -2287,21 +2639,31 @@ static char *update_drag_dst(const game_state *state, game_ui *ui,
 
     /* ... and see if there's an island off in that direction. */
     is = INDEX(state, gridi, ui->dragx_src, ui->dragy_src);
-    for (i = 0; i < is->adj.npoints; i++) {
-        if (is->adj.points[i].off == 0) continue;
-        curr = GRID(state, is->x+dx, is->y+dy);
-        if (curr & mtype) continue; /* don't allow changes to marked lines. */
-        if (ui->drag_is_noline) {
-            if (curr & gtype) continue; /* no no-line where already a line */
-        } else {
-            if (POSSIBLES(state, dx, is->x+dx, is->y+dy) == 0) continue; /* no line if !possible. */
-            if (curr & ntype) continue; /* can't have a bridge where there's a no-line. */
+    for (i = 0; i < is->adj.npoints; i++)
+    {
+        if (is->adj.points[i].off == 0)
+            continue;
+        curr = GRID(state, is->x + dx, is->y + dy);
+        if (curr & mtype)
+            continue; /* don't allow changes to marked lines. */
+        if (ui->drag_is_noline)
+        {
+            if (curr & gtype)
+                continue; /* no no-line where already a line */
+        }
+        else
+        {
+            if (POSSIBLES(state, dx, is->x + dx, is->y + dy) == 0)
+                continue; /* no line if !possible. */
+            if (curr & ntype)
+                continue; /* can't have a bridge where there's a no-line. */
         }
 
         if (is->adj.points[i].dx == dx &&
-            is->adj.points[i].dy == dy) {
-            ui->dragx_dst = ISLAND_ORTHX(is,i);
-            ui->dragy_dst = ISLAND_ORTHY(is,i);
+            is->adj.points[i].dy == dy)
+        {
+            ui->dragx_dst = ISLAND_ORTHX(is, i);
+            ui->dragy_dst = ISLAND_ORTHY(is, i);
         }
     }
     /*debug(("update_drag src (%d,%d) d(%d,%d) dst (%d,%d)\n",
@@ -2319,11 +2681,14 @@ static char *finish_drag(const game_state *state, game_ui *ui)
     if (ui->dragx_dst == -1 || ui->dragy_dst == -1)
         return ui_cancel_drag(ui);
 
-    if (ui->drag_is_noline) {
+    if (ui->drag_is_noline)
+    {
         sprintf(buf, "N%d,%d,%d,%d",
                 ui->dragx_src, ui->dragy_src,
                 ui->dragx_dst, ui->dragy_dst);
-    } else {
+    }
+    else
+    {
         sprintf(buf, "L%d,%d,%d,%d,%d",
                 ui->dragx_src, ui->dragy_src,
                 ui->dragx_dst, ui->dragy_dst, ui->nlines);
@@ -2340,73 +2705,97 @@ static char *interpret_move(const game_state *state, game_ui *ui,
 {
     int gx = FROMCOORD(x), gy = FROMCOORD(y);
     char buf[80], *ret;
-    grid_type ggrid = INGRID(state,gx,gy) ? GRID(state,gx,gy) : 0;
+    grid_type ggrid = INGRID(state, gx, gy) ? GRID(state, gx, gy) : 0;
     bool shift = button & MOD_SHFT, control = button & MOD_CTRL;
     button &= ~MOD_MASK;
 
-    if (button == LEFT_BUTTON || button == RIGHT_BUTTON) {
-        if (!INGRID(state, gx, gy)) return NULL;
+    if (button == LEFT_BUTTON || button == RIGHT_BUTTON)
+    {
+        if (!INGRID(state, gx, gy))
+            return NULL;
         ui->cur_visible = false;
-        if (ggrid & G_ISLAND) {
+        if (ggrid & G_ISLAND)
+        {
             ui->dragx_src = gx;
             ui->dragy_src = gy;
             return UI_UPDATE;
-        } else
+        }
+        else
             return ui_cancel_drag(ui);
-    } else if (button == LEFT_DRAG || button == RIGHT_DRAG) {
-        if (INGRID(state, ui->dragx_src, ui->dragy_src)
-                && (gx != ui->dragx_src || gy != ui->dragy_src)
-                && !(GRID(state,ui->dragx_src,ui->dragy_src) & G_MARK)) {
+    }
+    else if (button == LEFT_DRAG || button == RIGHT_DRAG)
+    {
+        if (INGRID(state, ui->dragx_src, ui->dragy_src) && (gx != ui->dragx_src || gy != ui->dragy_src) && !(GRID(state, ui->dragx_src, ui->dragy_src) & G_MARK))
+        {
             ui->dragging = true;
             ui->drag_is_noline = (button == RIGHT_DRAG);
             return update_drag_dst(state, ui, ds, x, y);
-        } else {
+        }
+        else
+        {
             /* cancel a drag when we go back to the starting point */
             ui->dragx_dst = -1;
             ui->dragy_dst = -1;
             return UI_UPDATE;
         }
-    } else if (button == LEFT_RELEASE || button == RIGHT_RELEASE) {
-        if (ui->dragging) {
+    }
+    else if (button == LEFT_RELEASE || button == RIGHT_RELEASE)
+    {
+        if (ui->dragging)
+        {
             return finish_drag(state, ui);
-        } else {
-            if (!INGRID(state, ui->dragx_src, ui->dragy_src)
-                    || gx != ui->dragx_src || gy != ui->dragy_src) {
+        }
+        else
+        {
+            if (!INGRID(state, ui->dragx_src, ui->dragy_src) || gx != ui->dragx_src || gy != ui->dragy_src)
+            {
                 return ui_cancel_drag(ui);
             }
             ui_cancel_drag(ui);
-            if (!INGRID(state, gx, gy)) return NULL;
-            if (!(GRID(state, gx, gy) & G_ISLAND)) return NULL;
+            if (!INGRID(state, gx, gy))
+                return NULL;
+            if (!(GRID(state, gx, gy) & G_ISLAND))
+                return NULL;
             sprintf(buf, "M%d,%d", gx, gy);
             return dupstr(buf);
         }
-    } else if (button == 'h' || button == 'H') {
+    }
+    else if (button == 'h' || button == 'H')
+    {
         game_state *solved = dup_game(state);
         solve_for_hint(solved);
         ret = game_state_diff(state, solved);
         free_game(solved);
         return ret;
-    } else if (IS_CURSOR_MOVE(button)) {
+    }
+    else if (IS_CURSOR_MOVE(button))
+    {
         ui->cur_visible = true;
-        if (control || shift) {
+        if (control || shift)
+        {
             ui->dragx_src = ui->cur_x;
             ui->dragy_src = ui->cur_y;
             ui->dragging = true;
             ui->drag_is_noline = !control;
         }
-        if (ui->dragging) {
+        if (ui->dragging)
+        {
             int nx = ui->cur_x, ny = ui->cur_y;
 
             move_cursor(button, &nx, &ny, state->w, state->h, false);
             if (nx == ui->cur_x && ny == ui->cur_y)
                 return NULL;
             update_drag_dst(state, ui, ds,
-                             COORD(nx)+TILE_SIZE/2,
-                             COORD(ny)+TILE_SIZE/2);
+                            COORD(nx) + TILE_SIZE / 2,
+                            COORD(ny) + TILE_SIZE / 2);
             return finish_drag(state, ui);
-        } else {
-            int dx = (button == CURSOR_RIGHT) ? +1 : (button == CURSOR_LEFT) ? -1 : 0;
-            int dy = (button == CURSOR_DOWN)  ? +1 : (button == CURSOR_UP)   ? -1 : 0;
+        }
+        else
+        {
+            int dx = (button == CURSOR_RIGHT) ? +1 : (button == CURSOR_LEFT) ? -1
+                                                                             : 0;
+            int dy = (button == CURSOR_DOWN) ? +1 : (button == CURSOR_UP) ? -1
+                                                                          : 0;
             int dorthx = 1 - abs(dx), dorthy = 1 - abs(dy);
             int dir, orth, nx = x, ny = y;
 
@@ -2426,55 +2815,73 @@ static char *interpret_move(const game_state *state, game_ui *ui,
              * islands across the other side of the grid will be moved to
              * before closer islands slightly offset). Swap the order of
              * these two loops to change to breadth-first search. */
-            for (orth = 0; ; orth++) {
+            for (orth = 0;; orth++)
+            {
                 bool oingrid = false;
-                for (dir = 1; ; dir++) {
+                for (dir = 1;; dir++)
+                {
                     bool dingrid = false;
 
-                    if (orth > dir) continue; /* only search in cone outwards. */
+                    if (orth > dir)
+                        continue; /* only search in cone outwards. */
 
-                    nx = ui->cur_x + dir*dx + orth*dorthx*orthorder;
-                    ny = ui->cur_y + dir*dy + orth*dorthy*orthorder;
-                    if (INGRID(state, nx, ny)) {
+                    nx = ui->cur_x + dir * dx + orth * dorthx * orthorder;
+                    ny = ui->cur_y + dir * dy + orth * dorthy * orthorder;
+                    if (INGRID(state, nx, ny))
+                    {
                         dingrid = true;
                         oingrid = true;
-                        if (GRID(state, nx, ny) & G_ISLAND) goto found;
+                        if (GRID(state, nx, ny) & G_ISLAND)
+                            goto found;
                     }
 
-                    nx = ui->cur_x + dir*dx - orth*dorthx*orthorder;
-                    ny = ui->cur_y + dir*dy - orth*dorthy*orthorder;
-                    if (INGRID(state, nx, ny)) {
+                    nx = ui->cur_x + dir * dx - orth * dorthx * orthorder;
+                    ny = ui->cur_y + dir * dy - orth * dorthy * orthorder;
+                    if (INGRID(state, nx, ny))
+                    {
                         dingrid = true;
                         oingrid = true;
-                        if (GRID(state, nx, ny) & G_ISLAND) goto found;
+                        if (GRID(state, nx, ny) & G_ISLAND)
+                            goto found;
                     }
 
-                    if (!dingrid) break;
+                    if (!dingrid)
+                        break;
                 }
-                if (!oingrid) return UI_UPDATE;
+                if (!oingrid)
+                    return UI_UPDATE;
             }
             /* not reached */
 
-found:
+        found:
             ui->cur_x = nx;
             ui->cur_y = ny;
             return UI_UPDATE;
         }
-    } else if (IS_CURSOR_SELECT(button)) {
-        if (!ui->cur_visible) {
+    }
+    else if (IS_CURSOR_SELECT(button))
+    {
+        if (!ui->cur_visible)
+        {
             ui->cur_visible = true;
             return UI_UPDATE;
         }
-        if (ui->dragging || button == CURSOR_SELECT2) {
+        if (ui->dragging || button == CURSOR_SELECT2)
+        {
             ui_cancel_drag(ui);
-            if (ui->dragx_dst == -1 && ui->dragy_dst == -1) {
+            if (ui->dragx_dst == -1 && ui->dragy_dst == -1)
+            {
                 sprintf(buf, "M%d,%d", ui->cur_x, ui->cur_y);
                 return dupstr(buf);
-            } else
+            }
+            else
                 return UI_UPDATE;
-        } else {
+        }
+        else
+        {
             grid_type v = GRID(state, ui->cur_x, ui->cur_y);
-            if (v & G_ISLAND) {
+            if (v & G_ISLAND)
+            {
                 ui->dragging = true;
                 ui->dragx_src = ui->cur_x;
                 ui->dragy_src = ui->cur_y;
@@ -2483,9 +2890,11 @@ found:
                 return UI_UPDATE;
             }
         }
-    } else if ((button >= '0' && button <= '9') ||
-               (button >= 'a' && button <= 'f') ||
-               (button >= 'A' && button <= 'F')) {
+    }
+    else if ((button >= '0' && button <= '9') ||
+             (button >= 'a' && button <= 'f') ||
+             (button >= 'A' && button <= 'F'))
+    {
         /* jump to island with .count == number closest to cur_{x,y} */
         int best_x = -1, best_y = -1, best_sqdist = -1, number = -1, i;
 
@@ -2496,15 +2905,17 @@ found:
         else if (button >= 'A' && button <= 'F')
             number = 10 + button - 'A';
 
-        if (!ui->cur_visible) {
+        if (!ui->cur_visible)
+        {
             ui->cur_visible = true;
             return UI_UPDATE;
         }
 
-        for (i = 0; i < state->n_islands; ++i) {
+        for (i = 0; i < state->n_islands; ++i)
+        {
             int x = state->islands[i].x, y = state->islands[i].y;
             int dx = x - ui->cur_x, dy = y - ui->cur_y;
-            int sqdist = dx*dx + dy*dy;
+            int sqdist = dx * dx + dy * dy;
 
             if (state->islands[i].count != number)
                 continue;
@@ -2516,19 +2927,24 @@ found:
              * also break ties by `lexicographically smallest (y, x)'.
              * Thus, there's a stable pattern to how ties are broken
              * which the user can learn and use to navigate faster. */
-            if (best_sqdist == -1 || sqdist < best_sqdist) {
+            if (best_sqdist == -1 || sqdist < best_sqdist)
+            {
                 best_x = x;
                 best_y = y;
                 best_sqdist = sqdist;
             }
         }
-        if (best_x != -1 && best_y != -1) {
+        if (best_x != -1 && best_y != -1)
+        {
             ui->cur_x = best_x;
             ui->cur_y = best_y;
             return UI_UPDATE;
-        } else
+        }
+        else
             return NULL;
-    } else if (button == 'g' || button == 'G') {
+    }
+    else if (button == 'g' || button == 'G')
+    {
         ui->show_hints = !ui->show_hints;
         return UI_UPDATE;
     }
@@ -2545,13 +2961,18 @@ static game_state *execute_move(const game_state *state, const char *move)
 
     debug(("execute_move: %s\n", move));
 
-    if (!*move) goto badmove;
-    while (*move) {
+    if (!*move)
+        goto badmove;
+    while (*move)
+    {
         c = *move++;
-        if (c == 'S') {
+        if (c == 'S')
+        {
             ret->solved = true;
             n = 0;
-        } else if (c == 'L') {
+        }
+        else if (c == 'L')
+        {
             if (sscanf(move, "%d,%d,%d,%d,%d%n",
                        &x1, &y1, &x2, &y2, &nl, &n) != 5)
                 goto badmove;
@@ -2559,10 +2980,14 @@ static game_state *execute_move(const game_state *state, const char *move)
                 goto badmove;
             is1 = INDEX(ret, gridi, x1, y1);
             is2 = INDEX(ret, gridi, x2, y2);
-            if (!is1 || !is2) goto badmove;
-            if (nl < 0 || nl > state->maxb) goto badmove;
+            if (!is1 || !is2)
+                goto badmove;
+            if (nl < 0 || nl > state->maxb)
+                goto badmove;
             island_join(is1, is2, nl, false);
-        } else if (c == 'N') {
+        }
+        else if (c == 'N')
+        {
             if (sscanf(move, "%d,%d,%d,%d%n",
                        &x1, &y1, &x2, &y2, &n) != 4)
                 goto badmove;
@@ -2570,28 +2995,35 @@ static game_state *execute_move(const game_state *state, const char *move)
                 goto badmove;
             is1 = INDEX(ret, gridi, x1, y1);
             is2 = INDEX(ret, gridi, x2, y2);
-            if (!is1 || !is2) goto badmove;
+            if (!is1 || !is2)
+                goto badmove;
             island_join(is1, is2, -1, false);
-        } else if (c == 'M') {
+        }
+        else if (c == 'M')
+        {
             if (sscanf(move, "%d,%d%n",
                        &x1, &y1, &n) != 2)
                 goto badmove;
             if (!INGRID(ret, x1, y1))
                 goto badmove;
             is1 = INDEX(ret, gridi, x1, y1);
-            if (!is1) goto badmove;
+            if (!is1)
+                goto badmove;
             island_togglemark(is1);
-        } else
+        }
+        else
             goto badmove;
 
         move += n;
         if (*move == ';')
             move++;
-        else if (*move) goto badmove;
+        else if (*move)
+            goto badmove;
     }
 
     map_update_possibles(ret);
-    if (map_check(ret)) {
+    if (map_check(ret))
+    {
         debug(("Game completed.\n"));
         ret->completed = true;
     }
@@ -2609,17 +3041,22 @@ static char *solve_game(const game_state *state, const game_state *currstate,
     char *ret;
     game_state *solved;
 
-    if (aux) {
+    if (aux)
+    {
         debug(("solve_game: aux = %s\n", aux));
         solved = execute_move(state, aux);
-        if (!solved) {
+        if (!solved)
+        {
             *error = "Generated aux string is not a valid move (!).";
             return NULL;
         }
-    } else {
+    }
+    else
+    {
         solved = dup_game(state);
         /* solve with max strength... */
-        if (solve_from_scratch(solved, 10) == 0) {
+        if (solve_from_scratch(solved, 10) == 0)
+        {
             free_game(solved);
             *error = "Game does not have a (non-recursive) solution.";
             return NULL;
@@ -2639,7 +3076,10 @@ static void game_compute_size(const game_params *params, int tilesize,
                               int *x, int *y)
 {
     /* Ick: fake up `ds->tilesize' for macro expansion purposes */
-    struct { int tilesize; } ads, *ds = &ads;
+    struct
+    {
+        int tilesize;
+    } ads, *ds = &ads;
     ads.tilesize = tilesize;
 
     *x = TILE_SIZE * params->w + 2 * BORDER;
@@ -2659,7 +3099,8 @@ static float *game_colours(frontend *fe, int *ncolours)
 
     game_mkhighlight(fe, ret, COL_BACKGROUND, COL_HIGHLIGHT, COL_LOWLIGHT);
 
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < 3; i++)
+    {
         ret[COL_FOREGROUND * 3 + i] = 0.0F;
         ret[COL_HINT * 3 + i] = ret[COL_LOWLIGHT * 3 + i];
         ret[COL_GRID * 3 + i] =
@@ -2685,7 +3126,7 @@ static float *game_colours(frontend *fe, int *ncolours)
 static game_drawstate *game_new_drawstate(drawing *dr, const game_state *state)
 {
     struct game_drawstate *ds = snew(struct game_drawstate);
-    int wh = state->w*state->h;
+    int wh = state->w * state->h;
     int i;
 
     ds->tilesize = 0;
@@ -2699,8 +3140,8 @@ static game_drawstate *game_new_drawstate(drawing *dr, const game_state *state)
     ds->newgrid = snewn(wh, unsigned long);
     ds->lv = snewn(wh, int);
     ds->lh = snewn(wh, int);
-    memset(ds->lv, 0, wh*sizeof(int));
-    memset(ds->lh, 0, wh*sizeof(int));
+    memset(ds->lv, 0, wh * sizeof(int));
+    memset(ds->lh, 0, wh * sizeof(int));
 
     return ds;
 }
@@ -2714,26 +3155,32 @@ static void game_free_drawstate(drawing *dr, game_drawstate *ds)
     sfree(ds);
 }
 
-#define LINE_WIDTH (TILE_SIZE/8)
-#define TS8(x) (((x)*TILE_SIZE)/8)
+#define LINE_WIDTH (TILE_SIZE / 8)
+#define TS8(x) (((x)*TILE_SIZE) / 8)
 
-#define OFFSET(thing) ((TILE_SIZE/2) - ((thing)/2))
+#define OFFSET(thing) ((TILE_SIZE / 2) - ((thing) / 2))
 
 static bool between_island(const game_state *state, int sx, int sy,
                            int dx, int dy)
 {
     int x = sx - dx, y = sy - dy;
 
-    while (INGRID(state, x, y)) {
-        if (GRID(state, x, y) & G_ISLAND) goto found;
-        x -= dx; y -= dy;
+    while (INGRID(state, x, y))
+    {
+        if (GRID(state, x, y) & G_ISLAND)
+            goto found;
+        x -= dx;
+        y -= dy;
     }
     return false;
 found:
     x = sx + dx, y = sy + dy;
-    while (INGRID(state, x, y)) {
-        if (GRID(state, x, y) & G_ISLAND) return true;
-        x += dx; y += dy;
+    while (INGRID(state, x, y))
+    {
+        if (GRID(state, x, y) & G_ISLAND)
+            return true;
+        x += dx;
+        y += dy;
     }
     return false;
 }
@@ -2743,23 +3190,29 @@ static void lines_lvlh(const game_state *state, const game_ui *ui,
 {
     int lh = 0, lv = 0;
 
-    if (v & G_LINEV) lv = INDEX(state,lines,x,y);
-    if (v & G_LINEH) lh = INDEX(state,lines,x,y);
+    if (v & G_LINEV)
+        lv = INDEX(state, lines, x, y);
+    if (v & G_LINEH)
+        lh = INDEX(state, lines, x, y);
 
-    if (ui->show_hints) {
-        if (between_island(state, x, y, 0, 1) && !lv) lv = 1;
-        if (between_island(state, x, y, 1, 0) && !lh) lh = 1;
+    if (ui->show_hints)
+    {
+        if (between_island(state, x, y, 0, 1) && !lv)
+            lv = 1;
+        if (between_island(state, x, y, 1, 0) && !lh)
+            lh = 1;
     }
     /*debug(("lvlh: (%d,%d) v 0x%x lv %d lh %d.\n", x, y, v, lv, lh));*/
-    *lv_r = lv; *lh_r = lh;
+    *lv_r = lv;
+    *lh_r = lh;
 }
 
 static void draw_cross(drawing *dr, game_drawstate *ds,
                        int ox, int oy, int col)
 {
     int off = TS8(2);
-    draw_line(dr, ox,     oy, ox+off, oy+off, col);
-    draw_line(dr, ox+off, oy, ox,     oy+off, col);
+    draw_line(dr, ox, oy, ox + off, oy + off, col);
+    draw_line(dr, ox + off, oy, ox, oy + off, col);
 }
 
 static void draw_general_line(drawing *dr, game_drawstate *ds,
@@ -2779,20 +3232,22 @@ static void draw_general_line(drawing *dr, game_drawstate *ds,
      */
     int fg;
 
-    fg = ((ldata & DL_COUNTMASK) == DL_COUNT_HINT ? COL_HINT :
-          (ldata & DL_COLMASK) == DL_COL_SELECTED ? COL_SELECTED :
-          (ldata & DL_COLMASK) == DL_COL_FLASH ? COL_HIGHLIGHT :
-          (ldata & DL_COLMASK) == DL_COL_WARNING ? COL_WARNING :
-          COL_FOREGROUND);
+    fg = ((ldata & DL_COUNTMASK) == DL_COUNT_HINT ? COL_HINT : (ldata & DL_COLMASK) == DL_COL_SELECTED ? COL_SELECTED
+                                                           : (ldata & DL_COLMASK) == DL_COL_FLASH      ? COL_HIGHLIGHT
+                                                           : (ldata & DL_COLMASK) == DL_COL_WARNING    ? COL_WARNING
+                                                                                                       : COL_FOREGROUND);
 
-    if ((ldata & DL_COUNTMASK) == DL_COUNT_CROSS) {
+    if ((ldata & DL_COUNTMASK) == DL_COUNT_CROSS)
+    {
         draw_cross(dr, ds,
-                   ox + TS8(1)*fx + TS8(3)*ax,
-                   oy + TS8(1)*fy + TS8(3)*ay, fg);
+                   ox + TS8(1) * fx + TS8(3) * ax,
+                   oy + TS8(1) * fy + TS8(3) * ay, fg);
         draw_cross(dr, ds,
-                   ox + TS8(5)*fx + TS8(3)*ax,
-                   oy + TS8(5)*fy + TS8(3)*ay, fg);
-    } else if ((ldata & DL_COUNTMASK) != 0) {
+                   ox + TS8(5) * fx + TS8(3) * ax,
+                   oy + TS8(5) * fy + TS8(3) * ay, fg);
+    }
+    else if ((ldata & DL_COUNTMASK) != 0)
+    {
         int lh, lw, gw, bw, i, loff;
 
         lh = (ldata & DL_COUNTMASK);
@@ -2800,20 +3255,22 @@ static void draw_general_line(drawing *dr, game_drawstate *ds,
             lh = 1;
 
         lw = gw = LINE_WIDTH;
-        while ((bw = lw * lh + gw * (lh+1)) > TILE_SIZE)
+        while ((bw = lw * lh + gw * (lh + 1)) > TILE_SIZE)
             gw--;
 
         loff = OFFSET(bw);
 
-        if (which & 1) {
+        if (which & 1)
+        {
             if ((ldata & DL_LOCK) && fg != COL_HINT)
-                draw_rect(dr, ox + loff*ax, oy + loff*ay,
-                          len*fx+bw*ax, len*fy+bw*ay, COL_MARK);
+                draw_rect(dr, ox + loff * ax, oy + loff * ay,
+                          len * fx + bw * ax, len * fy + bw * ay, COL_MARK);
         }
-        if (which & 2) {
+        if (which & 2)
+        {
             for (i = 0; i < lh; i++, loff += lw + gw)
-                draw_rect(dr, ox + (loff+gw)*ax, oy + (loff+gw)*ay,
-                          len*fx+lw*ax, len*fy+lw*ay, fg);
+                draw_rect(dr, ox + (loff + gw) * ax, oy + (loff + gw) * ay,
+                          len * fx + lw * ax, len * fy + lw * ay, fg);
         }
     }
 }
@@ -2830,9 +3287,9 @@ static void draw_vline(drawing *dr, game_drawstate *ds,
     draw_general_line(dr, ds, ox, oy, 0, 1, 1, 0, h, vdata, which);
 }
 
-#define ISLAND_RADIUS ((TILE_SIZE*12)/20)
+#define ISLAND_RADIUS ((TILE_SIZE * 12) / 20)
 #define ISLAND_NUMSIZE(clue) \
-    (((clue) < 10) ? (TILE_SIZE*7)/10 : (TILE_SIZE*5)/10)
+    (((clue) < 10) ? (TILE_SIZE * 7) / 10 : (TILE_SIZE * 5) / 10)
 
 static void draw_island(drawing *dr, game_drawstate *ds,
                         int ox, int oy, int clue, unsigned long idata)
@@ -2842,26 +3299,25 @@ static void draw_island(drawing *dr, game_drawstate *ds,
     if ((idata & DI_BGMASK) == DI_BG_NO_ISLAND)
         return;
 
-    half = TILE_SIZE/2;
+    half = TILE_SIZE / 2;
     orad = ISLAND_RADIUS;
     irad = orad - LINE_WIDTH;
-    fg = ((idata & DI_COLMASK) == DI_COL_SELECTED ? COL_SELECTED :
-          (idata & DI_COLMASK) == DI_COL_WARNING ? COL_WARNING :
-          (idata & DI_COLMASK) == DI_COL_FLASH ? COL_HIGHLIGHT :
-          COL_FOREGROUND);
-    bg = ((idata & DI_BGMASK) == DI_BG_CURSOR ? COL_CURSOR :
-          (idata & DI_BGMASK) == DI_BG_MARK ? COL_MARK :
-          COL_BACKGROUND);
+    fg = ((idata & DI_COLMASK) == DI_COL_SELECTED ? COL_SELECTED : (idata & DI_COLMASK) == DI_COL_WARNING ? COL_WARNING
+                                                               : (idata & DI_COLMASK) == DI_COL_FLASH     ? COL_HIGHLIGHT
+                                                                                                          : COL_FOREGROUND);
+    bg = ((idata & DI_BGMASK) == DI_BG_CURSOR ? COL_CURSOR : (idata & DI_BGMASK) == DI_BG_MARK ? COL_MARK
+                                                                                               : COL_BACKGROUND);
 
     /* draw a thick circle */
-    draw_circle(dr, ox+half, oy+half, orad, fg, fg);
-    draw_circle(dr, ox+half, oy+half, irad, bg, bg);
+    draw_circle(dr, ox + half, oy + half, orad, fg, fg);
+    draw_circle(dr, ox + half, oy + half, irad, bg, bg);
 
-    if (clue > 0) {
+    if (clue > 0)
+    {
         char str[32];
         int textcolour = (fg == COL_SELECTED ? COL_FOREGROUND : fg);
         sprintf(str, "%d", clue);
-        draw_text(dr, ox+half, oy+half, FONT_VARIABLE, ISLAND_NUMSIZE(clue),
+        draw_text(dr, ox + half, oy + half, FONT_VARIABLE, ISLAND_NUMSIZE(clue),
                   ALIGN_VCENTRE | ALIGN_HCENTRE, textcolour, str);
     }
 }
@@ -2880,14 +3336,15 @@ static void draw_island_tile(drawing *dr, game_drawstate *ds,
      * meeting at one corner, we must split the line-drawing into
      * background and foreground segments.
      */
-    for (which = 1; which <= 2; which <<= 1) {
-        draw_hline(dr, ds, ox, oy, TILE_SIZE/2,
+    for (which = 1; which <= 2; which <<= 1)
+    {
+        draw_hline(dr, ds, ox, oy, TILE_SIZE / 2,
                    (data >> D_I_LINE_SHIFT_L) & DL_MASK, which);
-        draw_hline(dr, ds, ox + TILE_SIZE - TILE_SIZE/2, oy, TILE_SIZE/2,
+        draw_hline(dr, ds, ox + TILE_SIZE - TILE_SIZE / 2, oy, TILE_SIZE / 2,
                    (data >> D_I_LINE_SHIFT_R) & DL_MASK, which);
-        draw_vline(dr, ds, ox, oy, TILE_SIZE/2,
+        draw_vline(dr, ds, ox, oy, TILE_SIZE / 2,
                    (data >> D_I_LINE_SHIFT_U) & DL_MASK, which);
-        draw_vline(dr, ds, ox, oy + TILE_SIZE - TILE_SIZE/2, TILE_SIZE/2,
+        draw_vline(dr, ds, ox, oy + TILE_SIZE - TILE_SIZE / 2, TILE_SIZE / 2,
                    (data >> D_I_LINE_SHIFT_D) & DL_MASK, which);
     }
     draw_island(dr, ds, ox, oy, clue, (data >> D_I_ISLAND_SHIFT) & DI_MASK);
@@ -2920,10 +3377,13 @@ static void draw_line_tile(drawing *dr, game_drawstate *ds,
      */
     hdata = (data >> D_L_LINE_SHIFT_H) & DL_MASK;
     vdata = (data >> D_L_LINE_SHIFT_V) & DL_MASK;
-    if ((hdata & DL_COUNTMASK) > (vdata & DL_COUNTMASK)) {
+    if ((hdata & DL_COUNTMASK) > (vdata & DL_COUNTMASK))
+    {
         draw_hline(dr, ds, ox, oy, TILE_SIZE, hdata, 3);
         draw_vline(dr, ds, ox, oy, TILE_SIZE, vdata, 3);
-    } else {
+    }
+    else
+    {
         draw_vline(dr, ds, ox, oy, TILE_SIZE, vdata, 3);
         draw_hline(dr, ds, ox, oy, TILE_SIZE, hdata, 3);
     }
@@ -2951,19 +3411,22 @@ static void draw_edge_tile(drawing *dr, game_drawstate *ds,
     int ox = COORD(x), oy = COORD(y);
     int cx = ox, cy = oy, cw = TILE_SIZE, ch = TILE_SIZE;
 
-    if (dy) {
+    if (dy)
+    {
         if (dy > 0)
-            cy += TILE_SIZE/2;
-        ch -= TILE_SIZE/2;
-    } else {
+            cy += TILE_SIZE / 2;
+        ch -= TILE_SIZE / 2;
+    }
+    else
+    {
         if (dx > 0)
-            cx += TILE_SIZE/2;
-        cw -= TILE_SIZE/2;
+            cx += TILE_SIZE / 2;
+        cw -= TILE_SIZE / 2;
     }
     clip(dr, cx, cy, cw, ch);
     draw_rect(dr, cx, cy, cw, ch, COL_BACKGROUND);
 
-    draw_island(dr, ds, ox + TILE_SIZE*dx, oy + TILE_SIZE*dy, -1,
+    draw_island(dr, ds, ox + TILE_SIZE * dx, oy + TILE_SIZE * dy, -1,
                 (data >> D_I_ISLAND_SHIFT) & DI_MASK);
 
     unclip(dr);
@@ -2980,16 +3443,19 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
     bool flash = false;
     struct island *is, *is_drag_src = NULL, *is_drag_dst = NULL;
 
-    if (flashtime) {
+    if (flashtime)
+    {
         int f = (int)(flashtime * 5 / FLASH_TIME);
-        if (f == 1 || f == 3) flash = true;
+        if (f == 1 || f == 3)
+            flash = true;
     }
 
     /* Clear screen, if required. */
-    if (!ds->started) {
+    if (!ds->started)
+    {
 #ifdef DRAW_GRID
         draw_rect_outline(dr,
-                          COORD(0)-1, COORD(0)-1,
+                          COORD(0) - 1, COORD(0) - 1,
                           TILE_SIZE * ds->w + 2, TILE_SIZE * ds->h + 2,
                           COL_GRID);
 #endif
@@ -2999,15 +3465,18 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
         ds->started = true;
     }
 
-    if (ui->dragx_src != -1 && ui->dragy_src != -1) {
+    if (ui->dragx_src != -1 && ui->dragy_src != -1)
+    {
         ds->dragging = true;
         is_drag_src = INDEX(state, gridi, ui->dragx_src, ui->dragy_src);
         assert(is_drag_src);
-        if (ui->dragx_dst != -1 && ui->dragy_dst != -1) {
+        if (ui->dragx_dst != -1 && ui->dragy_dst != -1)
+        {
             is_drag_dst = INDEX(state, gridi, ui->dragx_dst, ui->dragy_dst);
             assert(is_drag_dst);
         }
-    } else
+    }
+    else
         ds->dragging = false;
 
     /*
@@ -3015,13 +3484,16 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
      */
     for (x = 0; x < ds->w; x++)
         for (y = 0; y < ds->h; y++)
-            INDEX(ds,newgrid,x,y) = 0;
+            INDEX(ds, newgrid, x, y) = 0;
 
-    for (x = 0; x < ds->w; x++) {
-        for (y = 0; y < ds->h; y++) {
+    for (x = 0; x < ds->w; x++)
+    {
+        for (y = 0; y < ds->h; y++)
+        {
             v = GRID(state, x, y);
 
-            if (v & G_ISLAND) {
+            if (v & G_ISLAND)
+            {
                 /*
                  * An island square. Compute the drawing data for the
                  * island, and put it in this square and surrounding
@@ -3049,16 +3521,18 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
                 else
                     idata |= DI_BG_NORMAL;
 
-                INDEX(ds,newgrid,x,y) |= idata << D_I_ISLAND_SHIFT;
-                if (x > 0 && !(GRID(state,x-1,y) & G_ISLAND))
-                    INDEX(ds,newgrid,x-1,y) |= idata << D_L_ISLAND_SHIFT_R;
-                if (x+1 < state->w && !(GRID(state,x+1,y) & G_ISLAND))
-                    INDEX(ds,newgrid,x+1,y) |= idata << D_L_ISLAND_SHIFT_L;
-                if (y > 0 && !(GRID(state,x,y-1) & G_ISLAND))
-                    INDEX(ds,newgrid,x,y-1) |= idata << D_L_ISLAND_SHIFT_D;
-                if (y+1 < state->h && !(GRID(state,x,y+1) & G_ISLAND))
-                    INDEX(ds,newgrid,x,y+1) |= idata << D_L_ISLAND_SHIFT_U;
-            } else {
+                INDEX(ds, newgrid, x, y) |= idata << D_I_ISLAND_SHIFT;
+                if (x > 0 && !(GRID(state, x - 1, y) & G_ISLAND))
+                    INDEX(ds, newgrid, x - 1, y) |= idata << D_L_ISLAND_SHIFT_R;
+                if (x + 1 < state->w && !(GRID(state, x + 1, y) & G_ISLAND))
+                    INDEX(ds, newgrid, x + 1, y) |= idata << D_L_ISLAND_SHIFT_L;
+                if (y > 0 && !(GRID(state, x, y - 1) & G_ISLAND))
+                    INDEX(ds, newgrid, x, y - 1) |= idata << D_L_ISLAND_SHIFT_D;
+                if (y + 1 < state->h && !(GRID(state, x, y + 1) & G_ISLAND))
+                    INDEX(ds, newgrid, x, y + 1) |= idata << D_L_ISLAND_SHIFT_U;
+            }
+            else
+            {
                 unsigned long hdata, vdata;
                 bool selh = false, selv = false;
 
@@ -3070,8 +3544,9 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
                  */
 
                 if (is_drag_dst &&
-                    WITHIN(x,is_drag_src->x, is_drag_dst->x) &&
-                    WITHIN(y,is_drag_src->y, is_drag_dst->y)) {
+                    WITHIN(x, is_drag_src->x, is_drag_dst->x) &&
+                    WITHIN(y, is_drag_src->y, is_drag_dst->y))
+                {
                     if (is_drag_src->x != is_drag_dst->x)
                         selh = true;
                     else
@@ -3079,39 +3554,35 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
                 }
                 lines_lvlh(state, ui, x, y, v, &lv, &lh);
 
-                hdata = (v & G_NOLINEH ? DL_COUNT_CROSS :
-                         v & G_LINEH ? lh :
-                         (ui->show_hints &&
-                          between_island(state,x,y,1,0)) ? DL_COUNT_HINT : 0);
-                vdata = (v & G_NOLINEV ? DL_COUNT_CROSS :
-                         v & G_LINEV ? lv :
-                         (ui->show_hints &&
-                          between_island(state,x,y,0,1)) ? DL_COUNT_HINT : 0);
+                hdata = (v & G_NOLINEH ? DL_COUNT_CROSS : v & G_LINEH                                         ? lh
+                                                      : (ui->show_hints && between_island(state, x, y, 1, 0)) ? DL_COUNT_HINT
+                                                                                                              : 0);
+                vdata = (v & G_NOLINEV ? DL_COUNT_CROSS : v & G_LINEV                                         ? lv
+                                                      : (ui->show_hints && between_island(state, x, y, 0, 1)) ? DL_COUNT_HINT
+                                                                                                              : 0);
 
-                hdata |= (flash ? DL_COL_FLASH :
-                          v & G_WARN ? DL_COL_WARNING :
-                          selh ? DL_COL_SELECTED :
-                          DL_COL_NORMAL);
-                vdata |= (flash ? DL_COL_FLASH :
-                          v & G_WARN ? DL_COL_WARNING :
-                          selv ? DL_COL_SELECTED :
-                          DL_COL_NORMAL);
+                hdata |= (flash ? DL_COL_FLASH : v & G_WARN ? DL_COL_WARNING
+                                             : selh         ? DL_COL_SELECTED
+                                                            : DL_COL_NORMAL);
+                vdata |= (flash ? DL_COL_FLASH : v & G_WARN ? DL_COL_WARNING
+                                             : selv         ? DL_COL_SELECTED
+                                                            : DL_COL_NORMAL);
 
                 if (v & G_MARKH)
                     hdata |= DL_LOCK;
                 if (v & G_MARKV)
                     vdata |= DL_LOCK;
 
-                INDEX(ds,newgrid,x,y) |= hdata << D_L_LINE_SHIFT_H;
-                INDEX(ds,newgrid,x,y) |= vdata << D_L_LINE_SHIFT_V;
-                if (x > 0 && (GRID(state,x-1,y) & G_ISLAND))
-                    INDEX(ds,newgrid,x-1,y) |= hdata << D_I_LINE_SHIFT_R;
-                if (x+1 < state->w && (GRID(state,x+1,y) & G_ISLAND))
-                    INDEX(ds,newgrid,x+1,y) |= hdata << D_I_LINE_SHIFT_L;
-                if (y > 0 && (GRID(state,x,y-1) & G_ISLAND))
-                    INDEX(ds,newgrid,x,y-1) |= vdata << D_I_LINE_SHIFT_D;
-                if (y+1 < state->h && (GRID(state,x,y+1) & G_ISLAND))
-                    INDEX(ds,newgrid,x,y+1) |= vdata << D_I_LINE_SHIFT_U;
+                INDEX(ds, newgrid, x, y) |= hdata << D_L_LINE_SHIFT_H;
+                INDEX(ds, newgrid, x, y) |= vdata << D_L_LINE_SHIFT_V;
+                if (x > 0 && (GRID(state, x - 1, y) & G_ISLAND))
+                    INDEX(ds, newgrid, x - 1, y) |= hdata << D_I_LINE_SHIFT_R;
+                if (x + 1 < state->w && (GRID(state, x + 1, y) & G_ISLAND))
+                    INDEX(ds, newgrid, x + 1, y) |= hdata << D_I_LINE_SHIFT_L;
+                if (y > 0 && (GRID(state, x, y - 1) & G_ISLAND))
+                    INDEX(ds, newgrid, x, y - 1) |= vdata << D_I_LINE_SHIFT_D;
+                if (y + 1 < state->h && (GRID(state, x, y + 1) & G_ISLAND))
+                    INDEX(ds, newgrid, x, y + 1) |= vdata << D_I_LINE_SHIFT_U;
             }
         }
     }
@@ -3119,12 +3590,16 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
     /*
      * Now go through and draw any changed grid square.
      */
-    for (x = 0; x < ds->w; x++) {
-        for (y = 0; y < ds->h; y++) {
-            unsigned long newval = INDEX(ds,newgrid,x,y);
-            if (INDEX(ds,grid,x,y) != newval) {
+    for (x = 0; x < ds->w; x++)
+    {
+        for (y = 0; y < ds->h; y++)
+        {
+            unsigned long newval = INDEX(ds, newgrid, x, y);
+            if (INDEX(ds, grid, x, y) != newval)
+            {
                 v = GRID(state, x, y);
-                if (v & G_ISLAND) {
+                if (v & G_ISLAND)
+                {
                     is = INDEX(state, gridi, x, y);
                     draw_island_tile(dr, ds, x, y, is->count, newval);
 
@@ -3137,17 +3612,19 @@ static void game_redraw(drawing *dr, game_drawstate *ds,
                      * iff we redraw their parent island tile.
                      */
                     if (x == 0)
-                        draw_edge_tile(dr, ds, x-1, y, +1, 0, newval);
+                        draw_edge_tile(dr, ds, x - 1, y, +1, 0, newval);
                     if (y == 0)
-                        draw_edge_tile(dr, ds, x, y-1, 0, +1, newval);
-                    if (x == state->w-1)
-                        draw_edge_tile(dr, ds, x+1, y, -1, 0, newval);
-                    if (y == state->h-1)
-                        draw_edge_tile(dr, ds, x, y+1, 0, -1, newval);
-                } else {
+                        draw_edge_tile(dr, ds, x, y - 1, 0, +1, newval);
+                    if (x == state->w - 1)
+                        draw_edge_tile(dr, ds, x + 1, y, -1, 0, newval);
+                    if (y == state->h - 1)
+                        draw_edge_tile(dr, ds, x, y + 1, 0, -1, newval);
+                }
+                else
+                {
                     draw_line_tile(dr, ds, x, y, newval);
                 }
-                INDEX(ds,grid,x,y) = newval;
+                INDEX(ds, grid, x, y) = newval;
             }
         }
     }
@@ -3206,33 +3683,40 @@ static void game_print(drawing *dr, const game_state *state, int ts)
     /* Bridges */
     loff = ts / (8 * sqrt((state->params.maxb - 1)));
     print_line_width(dr, ts / 12);
-    for (x = 0; x < state->w; x++) {
-        for (y = 0; y < state->h; y++) {
-            cx = COORD(x); cy = COORD(y);
-            grid = GRID(state,x,y);
-            nl = INDEX(state,lines,x,y);
+    for (x = 0; x < state->w; x++)
+    {
+        for (y = 0; y < state->h; y++)
+        {
+            cx = COORD(x);
+            cy = COORD(y);
+            grid = GRID(state, x, y);
+            nl = INDEX(state, lines, x, y);
 
-            if (grid & G_ISLAND) continue;
-            if (grid & G_LINEV) {
+            if (grid & G_ISLAND)
+                continue;
+            if (grid & G_LINEV)
+            {
                 for (i = 0; i < nl; i++)
-                    draw_line(dr, cx+ts/2+(2*i-nl+1)*loff, cy,
-                              cx+ts/2+(2*i-nl+1)*loff, cy+ts, ink);
+                    draw_line(dr, cx + ts / 2 + (2 * i - nl + 1) * loff, cy,
+                              cx + ts / 2 + (2 * i - nl + 1) * loff, cy + ts, ink);
             }
-            if (grid & G_LINEH) {
+            if (grid & G_LINEH)
+            {
                 for (i = 0; i < nl; i++)
-                    draw_line(dr, cx, cy+ts/2+(2*i-nl+1)*loff,
-                              cx+ts, cy+ts/2+(2*i-nl+1)*loff, ink);
+                    draw_line(dr, cx, cy + ts / 2 + (2 * i - nl + 1) * loff,
+                              cx + ts, cy + ts / 2 + (2 * i - nl + 1) * loff, ink);
             }
         }
     }
 
     /* Islands */
-    for (i = 0; i < state->n_islands; i++) {
+    for (i = 0; i < state->n_islands; i++)
+    {
         char str[32];
         struct island *is = &state->islands[i];
         grid = GRID(state, is->x, is->y);
-        cx = COORD(is->x) + ts/2;
-        cy = COORD(is->y) + ts/2;
+        cx = COORD(is->x) + ts / 2;
+        cy = COORD(is->y) + ts / 2;
 
         draw_circle(dr, cx, cy, ISLAND_RADIUS, paper, ink);
 
@@ -3281,9 +3765,9 @@ const struct game thegame = {
     game_get_cursor_location,
     game_status,
     true, false, game_print_size, game_print,
-    false,			       /* wants_statusbar */
+    false, /* wants_statusbar */
     false, game_timing_state,
-    REQUIRE_RBUTTON,		       /* flags */
+    REQUIRE_RBUTTON, /* flags */
 };
 
 /* vim: set shiftwidth=4 tabstop=8: */

@@ -13,20 +13,21 @@
 #define PI 3.141592653589793238462643383279502884197169399
 #define ROOT2 1.414213562373095048801688724209698078569672
 
-#define lenof(array) ( sizeof(array) / sizeof(*(array)) )
+#define lenof(array) (sizeof(array) / sizeof(*(array)))
 
 #define STR_INT(x) #x
 #define STR(x) STR_INT(x)
 
 /* NB not perfect because they evaluate arguments multiple times. */
 #ifndef max
-#define max(x,y) ( (x)>(y) ? (x) : (y) )
+#define max(x, y) ((x) > (y) ? (x) : (y))
 #endif /* max */
 #ifndef min
-#define min(x,y) ( (x)<(y) ? (x) : (y) )
+#define min(x, y) ((x) < (y) ? (x) : (y))
 #endif /* min */
 
-enum {
+enum
+{
     LEFT_BUTTON = 0x0200,
     MIDDLE_BUTTON,
     RIGHT_BUTTON,
@@ -51,39 +52,39 @@ enum {
     UI_UNDO,
     UI_REDO,
     UI_UPPER_BOUND,
-    
+
     /* made smaller because of 'limited range of datatype' errors. */
-    MOD_CTRL       = 0x1000,
-    MOD_SHFT       = 0x2000,
+    MOD_CTRL = 0x1000,
+    MOD_SHFT = 0x2000,
     MOD_NUM_KEYPAD = 0x4000,
-    MOD_MASK       = 0x7000 /* mask for all modifiers */
+    MOD_MASK = 0x7000 /* mask for all modifiers */
 };
 
-#define IS_MOUSE_DOWN(m) ( (unsigned)((m) - LEFT_BUTTON) <= \
-                               (unsigned)(RIGHT_BUTTON - LEFT_BUTTON))
-#define IS_MOUSE_DRAG(m) ( (unsigned)((m) - LEFT_DRAG) <= \
-                               (unsigned)(RIGHT_DRAG - LEFT_DRAG))
-#define IS_MOUSE_RELEASE(m) ( (unsigned)((m) - LEFT_RELEASE) <= \
-                               (unsigned)(RIGHT_RELEASE - LEFT_RELEASE))
-#define IS_CURSOR_MOVE(m) ( (m) == CURSOR_UP || (m) == CURSOR_DOWN || \
-                            (m) == CURSOR_RIGHT || (m) == CURSOR_LEFT )
-#define IS_CURSOR_SELECT(m) ( (m) == CURSOR_SELECT || (m) == CURSOR_SELECT2)
-#define IS_UI_FAKE_KEY(m) ( (m) > UI_LOWER_BOUND && (m) < UI_UPPER_BOUND )
+#define IS_MOUSE_DOWN(m) ((unsigned)((m)-LEFT_BUTTON) <= \
+                          (unsigned)(RIGHT_BUTTON - LEFT_BUTTON))
+#define IS_MOUSE_DRAG(m) ((unsigned)((m)-LEFT_DRAG) <= \
+                          (unsigned)(RIGHT_DRAG - LEFT_DRAG))
+#define IS_MOUSE_RELEASE(m) ((unsigned)((m)-LEFT_RELEASE) <= \
+                             (unsigned)(RIGHT_RELEASE - LEFT_RELEASE))
+#define IS_CURSOR_MOVE(m) ((m) == CURSOR_UP || (m) == CURSOR_DOWN || \
+                           (m) == CURSOR_RIGHT || (m) == CURSOR_LEFT)
+#define IS_CURSOR_SELECT(m) ((m) == CURSOR_SELECT || (m) == CURSOR_SELECT2)
+#define IS_UI_FAKE_KEY(m) ((m) > UI_LOWER_BOUND && (m) < UI_UPPER_BOUND)
 
 /*
  * Flags in the back end's `flags' word.
  */
 /* Bit flags indicating mouse button priorities */
-#define BUTTON_BEATS(x,y) ( 1 << (((x)-LEFT_BUTTON)*3+(y)-LEFT_BUTTON) )
+#define BUTTON_BEATS(x, y) (1 << (((x)-LEFT_BUTTON) * 3 + (y)-LEFT_BUTTON))
 /* Flag indicating that Solve operations should be animated */
-#define SOLVE_ANIMATES ( 1 << 9 )
+#define SOLVE_ANIMATES (1 << 9)
 /* Pocket PC: Game requires right mouse button emulation */
-#define REQUIRE_RBUTTON ( 1 << 10 )
+#define REQUIRE_RBUTTON (1 << 10)
 /* Pocket PC: Game requires numeric input */
-#define REQUIRE_NUMPAD ( 1 << 11 )
+#define REQUIRE_NUMPAD (1 << 11)
 /* end of `flags' word definitions */
 
-#define IGNOREARG(x) ( (x) = (x) )
+#define IGNOREARG(x) ((x) = (x))
 
 typedef struct frontend frontend;
 typedef struct config_item config_item;
@@ -103,37 +104,47 @@ typedef struct psdata psdata;
 #define ALIGN_VNORMAL 0x000
 #define ALIGN_VCENTRE 0x100
 
-#define ALIGN_HLEFT   0x000
+#define ALIGN_HLEFT 0x000
 #define ALIGN_HCENTRE 0x001
-#define ALIGN_HRIGHT  0x002
+#define ALIGN_HRIGHT 0x002
 
-#define FONT_FIXED    0
+#define FONT_FIXED 0
 #define FONT_VARIABLE 1
 
 /* For printing colours */
-#define HATCH_SLASH     1
+#define HATCH_SLASH 1
 #define HATCH_BACKSLASH 2
-#define HATCH_HORIZ     3
-#define HATCH_VERT      4
-#define HATCH_PLUS      5
-#define HATCH_X         6
+#define HATCH_HORIZ 3
+#define HATCH_VERT 4
+#define HATCH_PLUS 5
+#define HATCH_X 6
 
 /*
  * Structure used to pass configuration data between frontend and
  * game
  */
-enum { C_STRING, C_CHOICES, C_BOOLEAN, C_END };
-struct config_item {
+enum
+{
+    C_STRING,
+    C_CHOICES,
+    C_BOOLEAN,
+    C_END
+};
+struct config_item
+{
     /* Not dynamically allocated */
     const char *name;
     /* Value from the above C_* enum */
     int type;
-    union {
-        struct { /* if type == C_STRING */
+    union
+    {
+        struct
+        { /* if type == C_STRING */
             /* Always dynamically allocated and non-NULL */
             char *sval;
         } string;
-        struct { /* if type == C_CHOICES */
+        struct
+        { /* if type == C_CHOICES */
             /*
              * choicenames is non-NULL, not dynamically allocated, and
              * contains a set of option strings separated by a
@@ -149,7 +160,8 @@ struct config_item {
              */
             int selected;
         } choices;
-        struct {
+        struct
+        {
             bool bval;
         } boolean;
     } u;
@@ -166,7 +178,8 @@ struct config_item {
  * the midend should ever need to free it. The front end should treat
  * them as read-only.
  */
-struct preset_menu_entry {
+struct preset_menu_entry
+{
     char *title;
     /* Exactly one of the next two fields is NULL, depending on
      * whether this entry is a submenu title or an actual preset */
@@ -184,9 +197,10 @@ struct preset_menu_entry {
      * presets are numbered. */
     int id;
 };
-struct preset_menu {
-    int n_entries;             /* number of entries actually in use */
-    int entries_size;          /* space currently allocated in this array */
+struct preset_menu
+{
+    int n_entries;    /* number of entries actually in use */
+    int entries_size; /* space currently allocated in this array */
     struct preset_menu_entry *entries;
 };
 /* For games which do want to directly return a tree of these, here
@@ -212,7 +226,8 @@ game_params *preset_menu_lookup_by_id(struct preset_menu *menu, int id);
  * If `label' is NULL (which it likely will be), a generic label can
  * be generated with the button2label() function.
  */
-typedef struct key_label {
+typedef struct key_label
+{
     /* What should be displayed to the user by the frontend. Backends
      * can set this field to NULL and have it filled in by the midend
      * with a generic label. Dynamically allocated, but frontends
@@ -253,7 +268,7 @@ void draw_polygon(drawing *dr, const int *coords, int npoints,
 void draw_circle(drawing *dr, int cx, int cy, int radius,
                  int fillcolour, int outlinecolour);
 void draw_thick_line(drawing *dr, float thickness,
-		     float x1, float y1, float x2, float y2, int colour);
+                     float x1, float y1, float x2, float y2, int colour);
 void clip(drawing *dr, int x, int y, int w, int h);
 void unclip(drawing *dr);
 void start_draw(drawing *dr);
@@ -273,20 +288,20 @@ void blitter_load(drawing *dr, blitter *bl, int x, int y);
 void print_begin_doc(drawing *dr, int pages);
 void print_begin_page(drawing *dr, int number);
 void print_begin_puzzle(drawing *dr, float xm, float xc,
-			float ym, float yc, int pw, int ph, float wmm,
-			float scale);
+                        float ym, float yc, int pw, int ph, float wmm,
+                        float scale);
 void print_end_puzzle(drawing *dr);
 void print_end_page(drawing *dr, int number);
 void print_end_doc(drawing *dr);
 void print_get_colour(drawing *dr, int colour, bool printing_in_colour,
-		      int *hatch, float *r, float *g, float *b);
+                      int *hatch, float *r, float *g, float *b);
 int print_mono_colour(drawing *dr, int grey); /* 0==black, 1==white */
 int print_grey_colour(drawing *dr, float grey);
 int print_hatched_colour(drawing *dr, int hatch);
 int print_rgb_mono_colour(drawing *dr, float r, float g, float b, int mono);
 int print_rgb_grey_colour(drawing *dr, float r, float g, float b, float grey);
 int print_rgb_hatched_colour(drawing *dr, float r, float g, float b,
-			     int hatch);
+                             int hatch);
 void print_line_width(drawing *dr, int width);
 void print_line_dotted(drawing *dr, bool dotted);
 
@@ -294,7 +309,7 @@ void print_line_dotted(drawing *dr, bool dotted);
  * midend.c
  */
 midend *midend_new(frontend *fe, const game *ourgame,
-		   const drawing_api *drapi, void *drhandle);
+                   const drawing_api *drapi, void *drhandle);
 void midend_free(midend *me);
 const game *midend_which_game(midend *me);
 void midend_set_params(midend *me, game_params *params);
@@ -314,7 +329,13 @@ void midend_timer(midend *me, float tplus);
 struct preset_menu *midend_get_presets(midend *me, int *id_limit);
 int midend_which_preset(midend *me);
 bool midend_wants_statusbar(midend *me);
-enum { CFG_SETTINGS, CFG_SEED, CFG_DESC, CFG_FRONTEND_SPECIFIC };
+enum
+{
+    CFG_SETTINGS,
+    CFG_SEED,
+    CFG_DESC,
+    CFG_FRONTEND_SPECIFIC
+};
 config_item *midend_get_config(midend *me, int which, char **wintitle);
 const char *midend_set_config(midend *me, int which, config_item *cfg);
 const char *midend_game_id(midend *me, const char *id);
@@ -353,11 +374,11 @@ void *srealloc(void *p, size_t size);
 void sfree(void *p);
 char *dupstr(const char *s);
 #define snew(type) \
-    ( (type *) smalloc (sizeof (type)) )
+    ((type *)smalloc(sizeof(type)))
 #define snewn(number, type) \
-    ( (type *) smalloc ((number) * sizeof (type)) )
+    ((type *)smalloc((number) * sizeof(type)))
 #define sresize(array, number, type) \
-    ( (type *) srealloc ((array), (number) * sizeof (type)) )
+    ((type *)srealloc((array), (number) * sizeof(type)))
 
 /*
  * misc.c
@@ -379,7 +400,7 @@ void game_mkhighlight(frontend *fe, float *ret,
 /* As above, but starts from a provided background colour rather
  * than the frontend default. */
 void game_mkhighlight_specific(frontend *fe, float *ret,
-			       int background, int highlight, int lowlight);
+                               int background, int highlight, int lowlight);
 
 /* Randomly shuffles an array of items. */
 void shuffle(void *array, int nelts, int eltsize, random_state *rs);
@@ -470,8 +491,8 @@ typedef struct tdq tdq;
 tdq *tdq_new(int n);
 void tdq_free(tdq *tdq);
 void tdq_add(tdq *tdq, int k);
-int tdq_remove(tdq *tdq);        /* returns -1 if nothing available */
-void tdq_fill(tdq *tdq);         /* add everything to the tdq at once */
+int tdq_remove(tdq *tdq); /* returns -1 if nothing available */
+void tdq_fill(tdq *tdq);  /* add everything to the tdq at once */
 
 /*
  * laydomino.c
@@ -503,7 +524,8 @@ typedef unsigned int uint32;
 #else
 typedef unsigned long uint32;
 #endif
-typedef struct {
+typedef struct
+{
     uint32 h[5];
     unsigned char block[64];
     int blkused;
@@ -520,7 +542,7 @@ void SHA_Simple(const void *p, int len, unsigned char *output);
 document *document_new(int pw, int ph, float userscale);
 void document_free(document *doc);
 void document_add_puzzle(document *doc, const game *game, game_params *par,
-			 game_state *st, game_state *st2);
+                         game_state *st, game_state *st2);
 int document_npages(const document *doc);
 void document_begin(const document *doc, drawing *dr);
 void document_end(const document *doc, drawing *dr);
@@ -538,9 +560,10 @@ drawing *ps_drawing_api(psdata *ps);
  * combi.c: provides a structure and functions for iterating over
  * combinations (i.e. choosing r things out of n).
  */
-typedef struct _combi_ctx {
-  int r, n, nleft, total;
-  int *a;
+typedef struct _combi_ctx
+{
+    int r, n, nleft, total;
+    int *a;
 } combi_ctx;
 
 combi_ctx *new_combi(int r, int n);
@@ -622,7 +645,8 @@ void arraysort_fn(void *array, size_t nmemb, size_t size,
  * all the games into a single combined executable rather than
  * having lots of little ones.
  */
-struct game {
+struct game
+{
     const char *name;
     const char *winhelp_topic, *htmlhelp_topic;
     game_params *(*default_params)(void);
@@ -637,7 +661,7 @@ struct game {
     game_params *(*custom_params)(const config_item *cfg);
     const char *(*validate_params)(const game_params *params, bool full);
     char *(*new_desc)(const game_params *params, random_state *rs,
-		      char **aux, bool interactive);
+                      char **aux, bool interactive);
     const char *(*validate_desc)(const game_params *params, const char *desc);
     game_state *(*new_game)(midend *me, const game_params *params,
                             const char *desc);
@@ -663,12 +687,12 @@ struct game {
     void (*compute_size)(const game_params *params, int tilesize,
                          int *x, int *y);
     void (*set_size)(drawing *dr, game_drawstate *ds,
-		     const game_params *params, int tilesize);
+                     const game_params *params, int tilesize);
     float *(*colours)(frontend *fe, int *ncolours);
     game_drawstate *(*new_drawstate)(drawing *dr, const game_state *state);
     void (*free_drawstate)(drawing *dr, game_drawstate *ds);
     void (*redraw)(drawing *dr, game_drawstate *ds, const game_state *oldstate,
-		   const game_state *newstate, int dir, const game_ui *ui,
+                   const game_state *newstate, int dir, const game_ui *ui,
                    float anim_time, float flash_time);
     float (*anim_length)(const game_state *oldstate,
                          const game_state *newstate, int dir, game_ui *ui);
@@ -694,16 +718,17 @@ struct game {
  * front end and also by cross-platform printing modules such as
  * PostScript.
  */
-struct drawing_api {
+struct drawing_api
+{
     void (*draw_text)(void *handle, int x, int y, int fonttype, int fontsize,
-		      int align, int colour, const char *text);
+                      int align, int colour, const char *text);
     void (*draw_rect)(void *handle, int x, int y, int w, int h, int colour);
     void (*draw_line)(void *handle, int x1, int y1, int x2, int y2,
-		      int colour);
+                      int colour);
     void (*draw_polygon)(void *handle, const int *coords, int npoints,
-			 int fillcolour, int outlinecolour);
+                         int fillcolour, int outlinecolour);
     void (*draw_circle)(void *handle, int cx, int cy, int radius,
-			int fillcolour, int outlinecolour);
+                        int fillcolour, int outlinecolour);
     void (*draw_update)(void *handle, int x, int y, int w, int h);
     void (*clip)(void *handle, int x, int y, int w, int h);
     void (*unclip)(void *handle);
@@ -717,17 +742,17 @@ struct drawing_api {
     void (*begin_doc)(void *handle, int pages);
     void (*begin_page)(void *handle, int number);
     void (*begin_puzzle)(void *handle, float xm, float xc,
-			 float ym, float yc, int pw, int ph, float wmm);
+                         float ym, float yc, int pw, int ph, float wmm);
     void (*end_puzzle)(void *handle);
     void (*end_page)(void *handle, int number);
     void (*end_doc)(void *handle);
     void (*line_width)(void *handle, float width);
     void (*line_dotted)(void *handle, bool dotted);
     char *(*text_fallback)(void *handle, const char *const *strings,
-			   int nstrings);
+                           int nstrings);
     void (*draw_thick_line)(void *handle, float thickness,
-			    float x1, float y1, float x2, float y2,
-			    int colour);
+                            float x1, float y1, float x2, float y2,
+                            int colour);
 };
 
 /*
